@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concierge Architect · A strategic read for Lorikeet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F1EB;
+  --bg-warm: #EDE9E0;
+  --bg-card: #FAF8F4;
+  --bg-elevated: #E8E4DB;
+  --deep: #1C1F1E;
+  --deep-card: #252928;
+  --deep-elevated: #2E3231;
+  --green: #1C3530;
+  --green-soft: #E8EEEC;
+  --green-hover: #152A26;
+  --green-on-dark: #8CBFAE;
+  --accent: #1C3530;
+  --accent-soft: #E8EEEC;
+  --accent-hover: #152A26;
+  --copper: #A0522D;
+  --copper-soft: #F0E4DA;
+  --slate: #6B6560;
+  --ink: #2C2825;
+  --ink-mid: #6B6560;
+  --ink-soft: #9A9490;
+  --ink-faint: #B8B3AD;
+  --ink-on-deep: #E0DBD2;
+  --ink-on-deep-mid: #8A857E;
+  --ink-on-deep-soft: #5A5550;
+  --border: #DDD8CE;
+  --border-deep: rgba(224,219,210,0.1);
+  --border-deep-s: rgba(224,219,210,0.18);
+  --danger: #A03020;
+  --danger-soft: #F0DDD8;
+  --serif: 'EB Garamond',Georgia,serif;
+  --ui: 'Instrument Sans',system-ui,sans-serif;
+  --mono: 'JetBrains Mono','SF Mono',monospace;
+  --ease: cubic-bezier(0.16,1,0.3,1);
+  --ease-s: cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-feature-settings:"kern" 1,"liga" 1,"onum" 1}
+body{font-family:var(--serif);font-size:18px;line-height:1.78;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+::selection{background:var(--green);color:#F4F1EB}
+
+.wrap{max-width:860px;margin:0 auto;padding:0 48px}
+.wrap-wide{max-width:1040px;margin:0 auto;padding:0 48px}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity 1.2s var(--ease),transform 1.2s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+
+/* ── Top bar ── */
+.scroll-progress{position:fixed;top:0;left:0;height:2px;background:var(--green);width:0%;z-index:200;transition:none}
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(244,241,235,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transform:translateY(-100%);transition:transform 0.6s var(--ease)}
+.top-bar.show{transform:translateY(0)}
+.top-bar-inner{max-width:1040px;margin:0 auto;padding:14px 48px;display:flex;justify-content:space-between;align-items:center}
+.top-bar-left{font-family:var(--ui);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft);display:flex;align-items:center;gap:10px;font-weight:500}
+.top-bar-dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.top-bar-right{display:flex;gap:32px}
+.top-bar-link{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-faint);text-decoration:none;cursor:pointer;transition:color 0.4s;font-weight:500}
+.top-bar-link:hover{color:var(--ink-mid)}
+.top-bar-link.active{color:var(--green)}
+
+/* ── Side nav ── */
+.side-nav{position:fixed;right:32px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;gap:8px}
+.side-dot{display:flex;align-items:center;gap:14px;background:none;border:none;cursor:pointer;padding:4px 0;flex-direction:row-reverse}
+.side-dot-pip{width:5px;height:5px;border-radius:50%;background:var(--ink-faint);transition:all 0.5s var(--ease)}
+.side-dot.active .side-dot-pip{background:var(--green);transform:scale(1.6)}
+.side-dot:hover .side-dot-pip{background:var(--ink-mid)}
+.side-dot-label{font-family:var(--ui);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:transparent;transition:color 0.4s;white-space:nowrap;font-weight:500}
+.side-dot:hover .side-dot-label{color:var(--ink-soft)}
+.side-dot.active .side-dot-label{color:var(--green)}
+
+/* ── Hero ── */
+.hero{min-height:100vh;display:flex;position:relative}
+.hero-line{position:absolute;top:0;right:200px;width:1px;height:100%;background:var(--border);opacity:0.4}
+.hero-content{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;min-height:100vh;padding:56px 48px 72px;width:100%;max-width:860px;margin:0 auto}
+.hero-top,.hero-bottom{display:flex;justify-content:space-between;align-items:center;font-family:var(--ui);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-soft);opacity:0;transform:translateY(14px);transition:all 1.2s var(--ease);font-weight:500}
+.hero-top.show,.hero-bottom.show{opacity:1;transform:none}
+.hero-mark{display:flex;align-items:center;gap:10px}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.hero-main{margin:auto 0;max-width:680px;padding:80px 0}
+.hero-eyebrow{font-family:var(--ui);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--green);font-weight:600;opacity:0;transform:translateY(14px);transition:all 1.1s var(--ease) 0.15s;margin-bottom:36px}
+.hero-eyebrow.show{opacity:1;transform:none}
+.hero-title{font-family:var(--serif);font-weight:400;font-size:clamp(60px,10vw,120px);line-height:0.9;letter-spacing:-0.04em;margin:0 0 44px;color:var(--ink)}
+.hero-word{display:inline-block;opacity:0;transform:translateY(40px);transition:all 1.3s var(--ease)}
+.hero-word.show{opacity:1;transform:none}
+.hero-title em{font-style:italic;font-weight:400;color:var(--green)}
+.hero-sub{font-family:var(--serif);font-size:clamp(20px,2.2vw,24px);line-height:1.55;color:var(--ink-mid);max-width:500px;font-weight:400;opacity:0;transform:translateY(20px);transition:all 1.1s var(--ease) 0.7s;margin-bottom:48px}
+.hero-sub.show{opacity:1;transform:none}
+.hero-nav{display:flex;flex-wrap:wrap;gap:32px;padding-top:36px;border-top:1px solid var(--border);font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:0;transition:opacity 1.1s var(--ease-s) 1s;font-weight:500}
+.hero-nav.show{opacity:1}
+.hero-nav a{color:var(--ink-faint);text-decoration:none;transition:color 0.4s;cursor:pointer}
+.hero-nav a:hover{color:var(--green)}
+.scroll-cue{display:flex;align-items:center;gap:14px}
+.scroll-line{width:56px;height:1px;background:var(--border);position:relative;overflow:hidden}
+.scroll-line::after{content:'';position:absolute;left:-100%;top:0;width:100%;height:100%;background:var(--green);animation:scrollSlide 4s var(--ease-s) infinite}
+@keyframes scrollSlide{0%{left:-100%}50%{left:100%}100%{left:100%}}
+
+/* ── Sections ── */
+.section{padding:160px 0 120px}
+.section-warm{background:var(--bg-warm)}
+.section-deep{background:var(--deep);color:var(--ink-on-deep)}
+.chapter-head{margin-bottom:64px;padding-bottom:0;border-bottom:none}
+.chapter-num{font-family:var(--ui);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;margin-bottom:20px;display:block}
+.section-deep .chapter-num{color:var(--ink-on-deep-mid)}
+.chapter-title{font-family:var(--serif);font-weight:400;font-size:clamp(34px,4.5vw,52px);line-height:1.08;letter-spacing:-0.025em}
+.chapter-title em{font-style:italic;color:var(--green)}
+.section-deep .chapter-title{color:var(--ink-on-deep)}
+.section-deep .chapter-title em{color:var(--green-on-dark)}
+.caption{font-family:var(--serif);font-size:20px;line-height:1.65;color:var(--ink-mid);font-weight:400;max-width:600px;margin-bottom:64px}
+.section-deep .caption{color:var(--ink-on-deep-mid)}
+
+/* ── Ch1 Venn ── */
+.venn-wrap{padding:40px 0 64px;max-width:680px;margin:0 auto}
+.venn-svg{overflow:visible}
+.vc{fill:transparent;stroke-width:1.2;cursor:pointer;opacity:0;transition:all 0.7s var(--ease)}
+.venn-svg.animate .vc{opacity:1}
+.venn-svg.animate .vc0{transition-delay:0ms}
+.venn-svg.animate .vc1{transition-delay:200ms}
+.venn-svg.animate .vc2{transition-delay:400ms}
+.vc0{stroke:var(--green)}.vc1{stroke:var(--copper)}.vc2{stroke:var(--ink-soft)}
+.vc.hl{stroke-width:2}
+.vc0.hl{fill:rgba(28,53,48,0.06)}.vc1.hl{fill:rgba(160,82,45,0.06)}.vc2.hl{fill:rgba(44,40,37,0.04)}
+.vc.dim{opacity:0.12}
+.vc-center{fill:var(--ink)}
+.vc-center-t{font-family:'EB Garamond',serif;font-size:18px;fill:var(--bg);font-style:italic}
+.vl-title{font-family:'Instrument Sans',sans-serif;font-size:15px;font-weight:500;letter-spacing:0.02em}
+.vl-sub{font-family:'EB Garamond',serif;font-size:13px;font-style:italic}
+.vl-0{fill:var(--green)}.vl-1{fill:var(--copper)}.vl-2{fill:var(--ink-soft)}
+.venn-legend{display:flex;justify-content:center;gap:36px;margin-top:32px;flex-wrap:wrap}
+.venn-legend-item{font-family:var(--ui);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:500}
+.venn-legend-dot{width:6px;height:6px;border-radius:50%}
+.venn-detail{margin-top:28px;padding:20px 24px;background:transparent;border-left:2px solid var(--border);display:flex;align-items:flex-start;gap:16px;opacity:0;transform:translateY(6px);transition:all 0.5s var(--ease);min-height:56px}
+.venn-detail.show{opacity:1;transform:none}
+.venn-detail-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.venn-detail-title{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:4px;font-weight:500}
+.venn-detail-body{font-family:var(--serif);font-size:16px;line-height:1.7;color:var(--ink)}
+.comp-note{font-family:var(--serif);font-size:18px;line-height:1.65;color:var(--ink-mid);max-width:480px;margin:64px auto 0;text-align:center;font-style:italic}
+
+/* ── Ch2 Walkthrough ── */
+.walkthrough{background:transparent;border:none;padding:0;overflow:hidden}
+.walk-header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:28px;border-bottom:1px solid var(--border);margin-bottom:36px;flex-wrap:wrap;gap:16px}
+.walk-client{font-family:var(--serif);font-size:28px;font-weight:400;letter-spacing:-0.02em}
+.walk-client em{font-style:italic;color:var(--green)}
+.walk-meta{font-family:var(--ui);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);margin-top:8px;font-weight:500}
+.walk-tag{font-family:var(--ui);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;background:var(--bg-elevated);color:var(--ink-soft);font-weight:500}
+.walk-stages{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:32px;position:relative;padding:0 14px}
+.walk-progress-line{position:absolute;top:13px;left:28px;right:28px;height:1px;background:var(--border);z-index:0}
+.walk-progress-fill{height:100%;background:var(--green);transition:width 0.7s var(--ease)}
+.walk-stage{text-align:center;cursor:pointer;position:relative;z-index:1;background:none;border:none;color:inherit;padding:0}
+.walk-dot{width:26px;height:26px;border-radius:50%;background:var(--bg);border:1px solid var(--border);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-family:var(--ui);font-size:10px;font-weight:500;color:var(--ink-soft);transition:all 0.4s var(--ease)}
+.walk-stage:hover .walk-dot{border-color:var(--green);color:var(--green)}
+.walk-stage.active .walk-dot{background:var(--green);border-color:var(--green);color:var(--bg)}
+.walk-stage.done .walk-dot{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.walk-stage-name{font-family:var(--ui);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);transition:color 0.3s;font-weight:500}
+.walk-stage.active .walk-stage-name{color:var(--green)}
+.walk-detail{background:var(--bg-card);border-left:2px solid var(--green);padding:36px 32px;min-height:200px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px}
+.walk-detail.fade{opacity:0.2}
+.walk-col-label{font-family:var(--ui);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:600}
+.col-accent{color:var(--green)}.col-copper{color:var(--copper)}.col-slate{color:var(--ink-soft)}
+.walk-col-heading{font-family:var(--serif);font-size:17px;font-weight:500;line-height:1.4;margin-bottom:10px}
+.walk-col-body{font-family:var(--serif);font-size:14.5px;line-height:1.65;color:var(--ink-mid)}
+.walk-nav{display:flex;justify-content:space-between;align-items:center;padding-top:28px;margin-top:28px}
+.walk-btn{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:10px 20px;border:1px solid var(--border);background:transparent;color:var(--ink-mid);cursor:pointer;transition:all 0.3s var(--ease-s);font-weight:500}
+.walk-btn:hover:not(:disabled){border-color:var(--green);color:var(--green)}
+.walk-btn:disabled{opacity:0.2;cursor:not-allowed}
+.walk-counter{font-family:var(--ui);font-size:10px;letter-spacing:0.14em;color:var(--ink-soft);font-weight:500}
+
+/* ── Ch3 ── */
+.ch3-section{padding:0;background:var(--bg)}
+.ch3-hero{padding:180px 0 120px;background:var(--deep);color:var(--ink-on-deep)}
+.ch3-num{font-family:var(--ui);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-on-deep-mid);margin-bottom:56px;font-weight:600}
+.ch3-statement{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4vw,44px);line-height:1.3;letter-spacing:-0.02em;margin-bottom:8px}
+.ch3-statement em{font-style:italic;color:var(--green-on-dark)}
+.ch3-statement-big{font-size:clamp(40px,6vw,66px);margin-bottom:56px;line-height:1.1}
+.ch3-fade{color:var(--ink-on-deep-mid)}
+.ch3-sub{font-family:var(--serif);font-size:19px;line-height:1.7;color:var(--ink-on-deep-mid);max-width:560px}
+.ch3-callout-wrap{padding:96px 0;background:var(--bg-warm);border-top:1px solid var(--border)}
+.ch3-callout{max-width:580px}
+.ch3-callout-label{font-family:var(--ui);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:28px;font-weight:600}
+.ch3-callout-quote{font-family:var(--serif);font-size:clamp(22px,3vw,30px);line-height:1.45;font-style:italic;color:var(--ink);margin:0 0 16px;letter-spacing:-0.01em}
+.ch3-callout-cite{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-soft);display:block;font-style:normal;font-weight:500}
+.ch3-demo{padding:120px 0 96px;background:var(--bg)}
+.ch3-demo-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:36px;flex-wrap:wrap;gap:12px;font-family:var(--serif);font-size:21px;color:var(--ink);letter-spacing:-0.01em}
+.ch3-demo-tag{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);font-style:normal;font-weight:600}
+.ch3-stats-wrap{padding:96px 0 140px;background:var(--bg-warm);border-top:1px solid var(--border)}
+.ch3-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:56px}
+.ch3-stat-num{font-family:var(--serif);font-size:48px;font-weight:400;line-height:1;color:var(--green);margin-bottom:14px;letter-spacing:-0.03em}
+.ch3-stat-label{font-family:var(--ui);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:14px;font-weight:600}
+.ch3-stat-desc{font-family:var(--serif);font-size:15px;line-height:1.65;color:var(--ink-mid);margin-bottom:10px}
+.ch3-stat-src{font-family:var(--ui);font-size:9px;color:var(--ink-faint);font-weight:500}
+
+/* ── Paradigm visual ── */
+.paradigm-visual{display:grid;grid-template-columns:1fr 40px 1fr;gap:0;align-items:stretch;margin-bottom:48px}
+.paradigm-side{padding:36px 28px;position:relative}
+.paradigm-side.before{background:var(--bg-elevated)}
+.paradigm-side.after{background:var(--deep);color:var(--ink-on-deep)}
+.paradigm-arrow{display:flex;align-items:center;justify-content:center;background:var(--bg-warm)}
+.paradigm-arrow svg path{stroke:var(--green)}
+.paradigm-side-label{font-family:var(--ui);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:20px;font-weight:600}
+.paradigm-side.before .paradigm-side-label{color:var(--ink-soft)}
+.paradigm-side.after .paradigm-side-label{color:var(--green-on-dark)}
+.paradigm-side-title{font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:18px;line-height:1.3}
+.paradigm-side.after .paradigm-side-title{color:var(--ink-on-deep)}
+.paradigm-flow{display:flex;flex-direction:column;gap:8px}
+.paradigm-node{display:flex;align-items:center;gap:10px;padding:10px 14px;font-family:var(--serif);font-size:14px;border-radius:0}
+.paradigm-side.before .paradigm-node{background:var(--bg-card);border:1px solid var(--border);color:var(--ink-mid)}
+.paradigm-side.after .paradigm-node{background:var(--deep-card);border:1px solid var(--border-deep-s);color:var(--ink-on-deep)}
+.paradigm-node-icon{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.paradigm-node.highlight{border-color:var(--green-on-dark)}
+.paradigm-node.highlight svg *{stroke:var(--green-on-dark)}
+.paradigm-node .multiplier{font-family:var(--mono);font-size:11px;color:var(--green-on-dark);font-weight:500;margin-left:auto}
+.paradigm-connector{width:1px;height:10px;background:var(--border);margin:0 0 0 24px}
+.paradigm-side.after .paradigm-connector{background:var(--border-deep-s)}
+.paradigm-quote-wrap{margin-top:28px;padding:28px 0;border-top:1px solid var(--border)}
+.paradigm-quote-text{font-family:var(--serif);font-size:21px;line-height:1.5;font-style:italic;color:var(--ink);margin-bottom:12px}
+.paradigm-quote-cite{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+.paradigm-proof{display:flex;align-items:flex-start;gap:14px;margin-top:24px;padding:20px 0;border-top:1px solid var(--border)}
+.paradigm-proof-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:8px}
+.paradigm-proof-text{font-family:var(--serif);font-size:15px;color:var(--ink-mid);line-height:1.65}
+.paradigm-proof-text strong{color:var(--ink);font-weight:500}
+
+/* ── Theatre ── */
+.theatre-wrap{position:relative}
+.theatre-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);overflow:hidden}
+.theatre-tab{flex:1;padding:16px 16px;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.3s var(--ease-s);display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:-1px}
+.theatre-tab-label{font-family:var(--ui);font-size:13px;font-weight:500;color:var(--ink-soft);transition:color 0.3s}
+.theatre-tab-tag{font-family:var(--ui);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);transition:color 0.3s;font-weight:500}
+.theatre-tab:hover .theatre-tab-label{color:var(--ink)}
+.theatre-tab.active{border-bottom-color:var(--green)}
+.theatre-tab.active .theatre-tab-label{color:var(--ink)}
+.theatre-tab.active .theatre-tab-tag{color:var(--green)}
+.theatre-screen{background:var(--bg-card);padding:36px;min-height:480px;position:relative}
+.theatre-statusbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.theatre-status{font-family:var(--ui);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);display:flex;align-items:center;gap:10px;font-weight:600}
+.theatre-status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:subtlePulse 3s ease-in-out infinite}
+@keyframes subtlePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(1.3)}}
+.theatre-status.waiting{color:var(--copper)}
+.theatre-status.waiting .theatre-status-dot{background:var(--copper)}
+.theatre-status.done{color:var(--ink-soft)}
+.theatre-status.done .theatre-status-dot{background:var(--ink-faint);animation:none}
+.theatre-timer{font-family:var(--mono);font-size:10px;color:var(--ink-faint)}
+.theatre-customer{display:flex;align-items:flex-start;gap:16px;margin-bottom:28px}
+.theatre-avatar{width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--ui);font-weight:600;font-size:11px;flex-shrink:0}
+.theatre-msg{font-family:var(--serif);font-size:19px;line-height:1.5;color:var(--ink);padding-top:6px;font-style:italic}
+.theatre-divider{display:flex;align-items:center;gap:18px;margin-bottom:28px;font-family:var(--ui);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
+.theatre-divider::before,.theatre-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.theatre-workspace{display:flex;flex-direction:column;gap:14px;max-height:600px;overflow-y:auto;scroll-behavior:smooth}
+.theatre-workspace::-webkit-scrollbar{width:2px}
+.theatre-workspace::-webkit-scrollbar-thumb{background:var(--ink-faint);border-radius:1px}
+.theatre-card{background:var(--bg);border:none;border-left:2px solid var(--card-accent,var(--green));padding:22px 24px;animation:cardReveal 0.9s var(--ease) both}
+@keyframes cardReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.theatre-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.theatre-card-label{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--card-accent,var(--green));display:flex;align-items:center;gap:8px;font-weight:600}
+.theatre-card-dot{width:4px;height:4px;border-radius:50%;background:var(--card-accent,var(--green))}
+.theatre-card-time{font-family:var(--mono);font-size:10px;color:var(--ink-faint)}
+.theatre-card-body{font-family:var(--serif);font-size:15px;line-height:1.65;color:var(--ink-mid)}
+.theatre-checks{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.theatre-check{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:13.5px;color:var(--ink-mid)}
+.theatre-check svg circle{stroke:var(--green)}
+.theatre-check svg path{stroke:var(--green)}
+.theatre-stats{display:flex;gap:32px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.theatre-stat-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink)}
+.theatre-stat-lbl{font-family:var(--ui);font-size:9px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.1em;margin-top:3px;font-weight:500}
+
+/* ── Risk assessment ── */
+.theatre-risk{margin-top:14px;border-left:2px solid var(--border)}
+.risk-row{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;font-size:13.5px}
+.risk-row:nth-child(odd){background:rgba(0,0,0,0.02)}
+.risk-label{color:var(--ink-mid);font-family:var(--serif)}
+.risk-val{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:0.04em}
+.risk-val.alert{color:var(--danger)}
+.risk-val.ok{color:var(--green)}
+.risk-val.score{font-size:16px;color:var(--danger);font-weight:600}
+
+/* ── Calendar ── */
+.theatre-calendar{margin-top:14px;overflow:hidden}
+.cal-header{display:grid;grid-template-columns:repeat(5,1fr);background:var(--bg-elevated);border-bottom:1px solid var(--border)}
+.cal-day-head{padding:8px 4px;text-align:center;font-family:var(--ui);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+.cal-grid{display:grid;grid-template-columns:repeat(5,1fr)}
+.cal-cell{padding:6px 4px;text-align:center;min-height:48px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.cal-cell:nth-child(5n){border-right:none}
+.cal-cell:nth-last-child(-n+5){border-bottom:none}
+.cal-cell.unavailable{background:var(--bg);opacity:0.3}
+.cal-cell.available{background:var(--bg-card);cursor:pointer;transition:all 0.25s}
+.cal-cell.available:hover{background:var(--green-soft)}
+.cal-cell.recommended{background:var(--green-soft)}
+.cal-cell.selected{background:var(--green);color:var(--bg)}
+.cal-cell.selected .cal-time{color:var(--bg)}
+.cal-cell.selected .cal-rec{color:rgba(244,241,235,0.7)}
+.cal-time{font-family:var(--serif);font-size:14px;color:var(--ink)}
+.cal-unavail{font-size:9px;color:var(--ink-faint);font-family:var(--ui);letter-spacing:0.04em;font-weight:500}
+.cal-rec{font-family:var(--ui);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);font-weight:600}
+
+/* ── Balances ── */
+.theatre-balances{margin-top:14px}
+.bal-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.bal-label{font-family:var(--ui);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);width:90px;flex-shrink:0;text-align:right;font-weight:500}
+.bal-track{flex:1;height:24px;background:var(--bg-elevated);border-radius:0;position:relative;overflow:hidden}
+.bal-fill{height:100%;transition:width 1s var(--ease)}
+.bal-fill.operating{background:var(--danger);opacity:0.6}
+.bal-fill.reserve{background:var(--green);opacity:0.6}
+.bal-fill.required{position:absolute;top:0;left:0;height:100%;border-right:2px dashed var(--ink);background:none;opacity:0.3}
+.bal-val{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);width:80px;flex-shrink:0}
+.bal-shortfall{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:var(--danger-soft);font-family:var(--mono);font-size:12px;color:var(--danger);margin-top:4px}
+.bal-shortfall strong{font-weight:600;font-size:14px}
+
+/* ── Slots fallback ── */
+.theatre-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.theatre-slot{background:var(--bg-card);border:1px solid var(--border);padding:14px;text-align:center;cursor:pointer;transition:all 0.3s}
+.theatre-slot:hover{border-color:var(--green)}
+.theatre-slot.rec{border-color:var(--green);background:var(--green-soft)}
+.theatre-slot.selected{border-color:var(--green);background:var(--green-soft)}
+.theatre-slot:disabled{cursor:default;opacity:0.4}
+.theatre-slot-day{font-family:var(--ui);font-size:10px;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+.theatre-slot-time{font-family:var(--serif);font-size:17px;color:var(--ink);margin:4px 0}
+.theatre-slot-detail{font-family:var(--serif);font-size:11px;color:var(--ink-faint);margin-bottom:2px}
+.theatre-slot-note{font-family:var(--ui);font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:0.08em;font-weight:600}
+
+/* ── Globe ── */
+.globe-container{width:100%;height:260px;margin-top:14px;background:#0a1412;border-radius:0;position:relative;overflow:visible}
+.globe-tag{position:absolute;top:0;left:0;display:flex;align-items:center;gap:6px;padding:5px 10px 5px 7px;border-radius:0;font-family:var(--ui);font-size:10px;letter-spacing:0.04em;white-space:nowrap;transition:opacity 0.3s;pointer-events:none;z-index:2;font-weight:500}
+.globe-tag-safe{background:rgba(28,53,48,0.88);color:var(--green-on-dark);border:1px solid rgba(140,191,174,0.25)}
+.globe-tag-danger{background:rgba(100,25,15,0.88);color:#ff8a7a;border:1px solid rgba(255,90,74,0.25)}
+.globe-tag-copper{background:rgba(100,60,25,0.88);color:#e4b87a;border:1px solid rgba(196,133,74,0.25)}
+.globe-tag-copper .globe-tag-text strong{color:#f0cc8a}
+.globe-tag-icon{display:flex;align-items:center;flex-shrink:0}
+.globe-tag-text{display:flex;flex-direction:column;gap:1px;line-height:1.2}
+.globe-tag-text strong{font-weight:600;font-size:9px;letter-spacing:0.1em;text-transform:uppercase}
+.globe-tag-safe .globe-tag-text strong{color:rgba(140,191,174,0.9)}
+.globe-tag-danger .globe-tag-text strong{color:#ffaa9a}
+.globe-dist{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:var(--ui);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,90,74,0.6);background:rgba(10,20,18,0.8);padding:4px 14px;border:1px solid rgba(255,90,74,0.12);transition:opacity 0.3s;font-weight:500}
+.theatre-map-legend{display:flex;gap:16px;margin-top:10px;font-family:var(--ui);font-size:10px;color:var(--ink-soft);font-weight:500}
+.map-legend-item.verified{color:var(--green)}
+.map-legend-item.suspicious{color:var(--danger)}
+@keyframes mapPing{0%{r:5;opacity:0.6}100%{r:18;opacity:0}}
+.map-ping{animation:mapPing 2s ease-out infinite}
+.map-label{font-family:'Instrument Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:0.04em}
+
+/* ── Other theatre bits ── */
+.theatre-frozen{margin-top:14px}
+.theatre-frozen-card{width:96px;height:60px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:4px;padding:8px 10px;position:relative;display:flex;flex-direction:column;justify-content:space-between}
+.theatre-frozen-chip{width:18px;height:12px;border-radius:2px;background:var(--copper);opacity:0.35}
+.theatre-frozen-num{font-family:var(--mono);font-size:10px;color:var(--ink-soft);letter-spacing:0.1em}
+.theatre-frozen-badge{position:absolute;top:6px;right:6px;font-family:var(--ui);font-size:7px;letter-spacing:0.12em;color:var(--danger);text-transform:uppercase;background:var(--danger-soft);padding:2px 5px;font-weight:600}
+.theatre-compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.theatre-cmp{background:var(--bg-card);border-left:2px solid var(--border);padding:12px 14px}
+.theatre-cmp.bad{border-left-color:var(--danger)}
+.theatre-cmp.good{border-left-color:var(--green)}
+.theatre-cmp-lbl{font-family:var(--ui);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+.theatre-cmp.bad .theatre-cmp-lbl{color:var(--danger)}
+.theatre-cmp.good .theatre-cmp-lbl{color:var(--green)}
+.theatre-cmp-txt{font-family:var(--mono);font-size:12px;color:var(--ink);word-break:break-all}
+.theatre-approval{display:flex;gap:10px;margin-top:18px}
+.theatre-approve{font-family:var(--ui);font-size:12px;font-weight:500;padding:12px 22px;border:none;cursor:pointer;transition:all 0.3s var(--ease-s);flex:1}
+.theatre-approve.primary{background:var(--green);color:var(--bg)}
+.theatre-approve.primary:hover{background:var(--green-hover)}
+.theatre-approve.secondary{background:transparent;color:var(--ink);border:1px solid var(--border)}
+.theatre-approve.secondary:hover{border-color:var(--ink-mid)}
+.theatre-approve:disabled{opacity:0.3;cursor:not-allowed}
+.theatre-thinking{display:flex;align-items:center;gap:10px;padding:16px 0}
+.thinking-dots{display:flex;gap:5px}
+.thinking-dots span{width:4px;height:4px;border-radius:50%;background:var(--green);animation:thinkDot 1.6s ease-in-out infinite}
+.thinking-dots span:nth-child(2){animation-delay:0.2s}
+.thinking-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes thinkDot{0%,80%,100%{opacity:0.15;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+.thinking-label{font-family:var(--ui);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
+.theatre-banner{background:var(--green-soft);border:none;border-top:1px solid var(--border);padding:22px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;animation:cardReveal 0.9s var(--ease)}
+.theatre-banner-label{font-family:var(--ui);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:4px;font-weight:600}
+.theatre-banner-text{font-family:var(--serif);font-size:16px;color:var(--ink)}
+.theatre-replay{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:8px 18px;background:var(--green);color:var(--bg);border:none;cursor:pointer;transition:background 0.3s;font-weight:500}
+.theatre-replay:hover{background:var(--green-hover)}
+
+/* ── Prospect ── */
+.prospect-card{background:transparent;border:none;padding:0}
+.prospect-disclosure{font-family:var(--ui);font-size:11px;letter-spacing:0.04em;color:var(--ink-soft);background:var(--bg-elevated);padding:16px 22px;margin-bottom:36px;line-height:1.7;font-weight:400}
+.prospect-disclosure strong{color:var(--ink);font-weight:600}
+.prospect-head{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:32px;border-bottom:1px solid var(--border);margin-bottom:48px;flex-wrap:wrap;gap:16px}
+.prospect-brand{font-family:var(--serif);font-size:48px;font-weight:400;letter-spacing:-0.03em;line-height:1}
+.prospect-brand em{font-style:italic;color:var(--copper)}
+.prospect-tag{font-family:var(--ui);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;padding:6px 16px;background:var(--green-soft);color:var(--green);font-weight:600}
+
+/* ── Opportunity scorecard ── */
+.opp-scorecard{background:var(--bg-card);border:none;border-left:2px solid var(--green);padding:0;margin-bottom:48px;overflow:hidden}
+.opp-header{display:flex;justify-content:space-between;align-items:center;padding:20px 28px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.opp-header>span:first-child{font-family:var(--serif);font-size:18px;color:var(--ink)}
+.opp-tag{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);font-weight:600}
+.opp-metrics{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--border)}
+.opp-metric{padding:28px 20px;border-right:1px solid var(--border);text-align:center}
+.opp-metric:last-child{border-right:none}
+.opp-metric-num{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--ink);margin-bottom:8px}
+.opp-metric-num.accent{font-size:16px;color:var(--green);font-family:var(--ui);font-weight:600;letter-spacing:0.02em}
+.opp-metric-num.copper{font-size:26px;color:var(--copper)}
+.opp-metric-label{font-family:var(--ui);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:4px;font-weight:500}
+.opp-metric-src{font-family:var(--ui);font-size:9px;color:var(--ink-faint);font-weight:400}
+.opp-compare{display:grid;grid-template-columns:1fr 40px 1fr;border-bottom:1px solid var(--border)}
+.opp-compare-side{padding:28px 22px}
+.opp-current{background:var(--bg-elevated)}
+.opp-proposed{background:var(--green-soft)}
+.opp-compare-arrow{display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.opp-compare-arrow svg path{stroke:var(--green)}
+.opp-compare-head{font-family:var(--ui);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:16px;font-weight:600}
+.opp-current .opp-compare-head{color:var(--ink-soft)}
+.opp-proposed .opp-compare-head{color:var(--green)}
+.opp-compare-list{display:flex;flex-direction:column;gap:10px}
+.opp-compare-item{font-family:var(--serif);font-size:14px;line-height:1.5;display:flex;align-items:flex-start;gap:10px}
+.opp-current .opp-compare-item{color:var(--ink-mid)}
+.opp-proposed .opp-compare-item{color:var(--ink)}
+.opp-x{color:var(--danger);font-size:11px;flex-shrink:0;margin-top:2px;font-weight:700}
+.opp-check{color:var(--green);font-size:12px;flex-shrink:0;margin-top:1px;font-weight:700}
+.opp-signals{padding:28px 28px}
+.opp-signals-label{font-family:var(--ui);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:14px;font-weight:600}
+.opp-signals-bar{height:4px;background:var(--bg-elevated);margin-bottom:18px;overflow:hidden}
+.opp-signals-fill{height:100%;width:100%;background:var(--green);animation:fillBar 1.8s var(--ease) both}
+@keyframes fillBar{from{width:0%}to{width:100%}}
+.opp-signals-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.opp-signal-pip{font-family:var(--ui);font-size:9.5px;letter-spacing:0.04em;color:var(--ink-faint);padding:10px 10px;background:var(--bg-elevated);border-left:2px solid var(--border);text-align:center;font-weight:500}
+.opp-signal-pip.active{border-left-color:var(--green);color:var(--green);background:var(--green-soft)}
+
+/* ── Signals timeline ── */
+.signals-timeline{position:relative;padding:8px 0 16px}
+.signal{display:flex;gap:28px}
+.signal-marker{display:flex;flex-direction:column;align-items:center;padding-top:6px}
+.signal-dot{width:8px;height:8px;border-radius:50%;background:var(--copper);flex-shrink:0}
+.signal-line{width:1px;flex:1;background:var(--border);margin:8px 0;min-height:24px}
+.signal-content{padding-bottom:40px;flex:1}
+.signal-tag{font-family:var(--ui);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--copper);margin-bottom:12px;font-weight:600}
+.signal-title{font-family:var(--serif);font-size:21px;font-weight:500;line-height:1.3;margin-bottom:12px;letter-spacing:-0.01em}
+.signal-body{font-family:var(--serif);font-size:15.5px;line-height:1.7;color:var(--ink-mid)}
+.signal-src{font-family:var(--ui);font-size:9px;color:var(--ink-faint);margin-top:14px;font-weight:500}
+.prospect-quote{background:transparent;padding:36px 0;border-top:1px solid var(--border);border-left:none;margin:32px 0}
+.prospect-quote-text{font-family:var(--serif);font-size:22px;line-height:1.55;font-style:italic;margin-bottom:16px;letter-spacing:-0.01em}
+.prospect-quote-cite{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-soft);display:block;font-style:normal;font-weight:500}
+.prospect-cta{display:flex;justify-content:space-between;align-items:center;padding-top:32px;border-top:1px solid var(--border);flex-wrap:wrap;gap:16px}
+.prospect-cta-label{font-family:var(--ui);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+.prospect-cta-arrow{font-family:var(--serif);font-size:21px;color:var(--green);font-style:italic}
+
+.deploy-section{margin:48px 0;padding:48px 0;border-top:1px solid var(--border)}
+.deploy-label{font-family:var(--ui);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--green);font-weight:600;margin-bottom:28px}
+.deploy-phases{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-bottom:36px}
+.deploy-phase{padding:24px 20px;position:relative}
+.deploy-phase:first-child{background:var(--bg-elevated)}
+.deploy-phase:nth-child(2){background:var(--bg-warm)}
+.deploy-phase:last-child{background:var(--green-soft)}
+.deploy-phase-num{font-family:var(--ui);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;margin-bottom:12px}
+.deploy-phase:last-child .deploy-phase-num{color:var(--green)}
+.deploy-phase-title{font-family:var(--serif);font-size:17px;font-weight:500;margin-bottom:10px;line-height:1.3}
+.deploy-phase-body{font-family:var(--serif);font-size:13.5px;line-height:1.6;color:var(--ink-mid)}
+.deploy-phase-stack{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+.deploy-chip{font-family:var(--ui);font-size:9px;letter-spacing:0.06em;padding:4px 10px;font-weight:500}
+.deploy-chip.zen{background:var(--bg-card);border:1px solid var(--border);color:var(--ink-soft)}
+.deploy-chip.lor{background:var(--green);color:var(--bg)}
+.deploy-chip.dim{opacity:0.4}
+.deploy-arrow{position:absolute;right:-8px;top:50%;transform:translateY(-50%);z-index:1;width:16px;height:16px;background:var(--bg-warm);border-right:1px solid var(--border);border-top:1px solid var(--border);transform:translateY(-50%) rotate(45deg)}
+.deploy-phase:nth-child(2) .deploy-arrow{background:var(--green-soft)}
+.deploy-phase:last-child .deploy-arrow{display:none}
+
+.stakeholder-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--border)}
+.stakeholder{padding:20px 22px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stakeholder:nth-child(2n){border-right:none}
+.stakeholder-role{font-family:var(--ui);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);font-weight:600;margin-bottom:8px}
+.stakeholder-title{font-family:var(--serif);font-size:15px;font-weight:500;margin-bottom:6px}
+.stakeholder-hook{font-family:var(--serif);font-size:13.5px;color:var(--ink-mid);line-height:1.55;font-style:italic}
+
+/* ── About ── */
+.about-grid{display:grid;grid-template-columns:1fr 280px;gap:72px;align-items:start}
+.about-bio p{font-family:var(--serif);font-size:17px;line-height:1.8;margin-bottom:1.4em;color:var(--ink-mid)}
+.about-opener{font-size:24px!important;font-weight:400!important;line-height:1.4!important;color:var(--ink)!important}
+.about-bio em{font-style:italic;color:var(--green)}
+.about-meta{background:transparent;border:none;border-left:2px solid var(--border);padding:4px 0 4px 28px}
+.about-row{padding:18px 0;border-bottom:1px solid var(--border)}
+.about-row:last-child{border-bottom:none}
+.about-row-label{font-family:var(--ui);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;font-weight:600}
+.about-row-val{font-family:var(--serif);font-size:14px;color:var(--ink);line-height:1.6}
+
+/* ── Footer ── */
+.footer{padding:64px 0 56px;border-top:1px solid var(--border)}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;font-family:var(--ui);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);flex-wrap:wrap;gap:16px;font-weight:500}
+.footer-right{color:var(--green)}
+
+/* ── Responsive ── */
+@media(max-width:780px){
+  .wrap,.wrap-wide{padding:0 28px}
+  .hero-content{padding:40px 28px 56px}
+  .hero-line{display:none}
+  .side-nav{display:none}
+  .chapter-head{grid-template-columns:1fr;gap:8px}
+  .walk-stages{grid-template-columns:repeat(4,1fr);row-gap:16px}
+  .walk-progress-line{display:none}
+  .walk-detail{grid-template-columns:1fr;gap:24px;padding:28px 24px}
+  .about-grid{grid-template-columns:1fr;gap:40px}
+  .section{padding:120px 0 80px}
+  .prospect-brand{font-size:36px}
+  .theatre-slots,.theatre-calendar .cal-grid{grid-template-columns:1fr}
+  .theatre-compare{grid-template-columns:1fr}
+  .ch3-stats{grid-template-columns:repeat(2,1fr);gap:36px}
+  .theatre-tabs{flex-wrap:wrap}
+  .theatre-screen{padding:24px}
+  .opp-metrics{grid-template-columns:repeat(2,1fr)}
+  .opp-compare{grid-template-columns:1fr}
+  .opp-compare-arrow{display:none}
+  .opp-signals-grid{grid-template-columns:repeat(2,1fr)}
+  .deploy-phases{grid-template-columns:1fr}
+  .deploy-arrow{display:none}
+  .stakeholder-grid{grid-template-columns:1fr}
+  .stakeholder{border-right:none}
+  .paradigm-visual{grid-template-columns:1fr}
+  .paradigm-arrow{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- Top bar -->
+<div class="top-bar" id="topBar">
+  <div class="top-bar-inner">
+    <div class="top-bar-left">
+      <div class="top-bar-dot"></div>
+      <span>Concierge Architect</span>
+    </div>
+    <div class="top-bar-right">
+      <a class="top-bar-link" data-section="hero" onclick="goto('hero')">Top</a>
+      <a class="top-bar-link" data-section="ch1" onclick="goto('ch1')">Compression</a>
+      <a class="top-bar-link" data-section="ch2" onclick="goto('ch2')">How it works</a>
+      <a class="top-bar-link" data-section="ch3" onclick="goto('ch3')">Paradigm</a>
+      <a class="top-bar-link" data-section="ch4" onclick="goto('ch4')">Prospect</a>
+      <a class="top-bar-link" data-section="ch5" onclick="goto('ch5')">About</a>
+    </div>
+  </div>
+</div>
+
+<!-- Side nav -->
+<nav class="side-nav" id="sideNav">
+  <button class="side-dot" data-section="hero" onclick="goto('hero')"><span class="side-dot-pip"></span><span class="side-dot-label">Top</span></button>
+  <button class="side-dot" data-section="ch1" onclick="goto('ch1')"><span class="side-dot-pip"></span><span class="side-dot-label">01</span></button>
+  <button class="side-dot" data-section="ch2" onclick="goto('ch2')"><span class="side-dot-pip"></span><span class="side-dot-label">02</span></button>
+  <button class="side-dot" data-section="ch3" onclick="goto('ch3')"><span class="side-dot-pip"></span><span class="side-dot-label">03</span></button>
+  <button class="side-dot" data-section="ch4" onclick="goto('ch4')"><span class="side-dot-pip"></span><span class="side-dot-label">04</span></button>
+  <button class="side-dot" data-section="ch5" onclick="goto('ch5')"><span class="side-dot-pip"></span><span class="side-dot-label">05</span></button>
+</nav>
+
+<!-- Hero -->
+<header id="hero" class="hero">
+  <div class="hero-line"></div>
+  <div class="hero-content">
+    <div class="hero-top" id="heroTop">
+      <div class="hero-mark">
+        <span class="hero-dot"></span>
+        <span>A strategic read · For Lorikeet</span>
+      </div>
+      <div>Sydney · April 2026 · 4 min read</div>
+    </div>
+    <div class="hero-main">
+      <div class="hero-eyebrow" id="heroEyebrow">Strategic read</div>
+      <h1 class="hero-title">
+        <span class="hero-word" id="hw1">Concierge</span><br>
+        <em class="hero-word" id="hw2">Architect.</em>
+      </h1>
+      <p class="hero-sub" id="heroSub">The translation layer between business reality and agentic AI. A role. A paradigm thesis. A named prospect.</p>
+      <nav class="hero-nav" id="heroNav">
+        <a onclick="goto('ch1')">01 · The compression</a>
+        <a onclick="goto('ch2')">02 · How the role works</a>
+        <a onclick="goto('ch3')">03 · The paradigm</a>
+        <a onclick="goto('ch4')">04 · Prospect · Wise</a>
+        <a onclick="goto('ch5')">05 · About</a>
+      </nav>
+    </div>
+    <div class="hero-bottom" id="heroBottom">
+      <span>Gaurav Devsarmah</span>
+      <div class="scroll-cue"><span>Scroll</span><div class="scroll-line"></div></div>
+    </div>
+  </div>
+</header>
+
+<!-- Ch1: Compression -->
+<section id="ch1" class="section section-warm">
+  <div class="wrap">
+    <div class="chapter-head reveal">
+      <div class="chapter-num">Chapter 01</div>
+      <h2 class="chapter-title">Three domains, <em>one operator.</em></h2>
+    </div>
+    <p class="caption reveal">At scaled AI companies this work is distributed across a cluster of seats. Palantir splits it across Forward Deployed Engineers, Product, and Solutions. Sierra runs it through Agent Strategists, Forward Deployed Engineers, and Implementation. At Series A, compressing that cluster into one operator with founder instincts is the right bet for the window Lorikeet is in.</p>
+
+    <div class="venn-wrap reveal">
+      <svg id="vennSvg" viewBox="0 0 600 480" class="venn-svg" style="width:100%;max-width:640px;display:block;margin:0 auto">
+        <ellipse cx="300" cy="175" rx="170" ry="135" class="vc vc0" id="ve0"/>
+        <ellipse cx="210" cy="310" rx="170" ry="135" class="vc vc1" id="ve1"/>
+        <ellipse cx="390" cy="310" rx="170" ry="135" class="vc vc2" id="ve2"/>
+        <text x="300" y="88" text-anchor="middle" class="vl-title vl-0">Pre-sales</text>
+        <text x="300" y="108" text-anchor="middle" class="vl-title vl-0">Architecture</text>
+        <text x="300" y="128" text-anchor="middle" class="vl-sub vl-0">Scoping · ROI · Reference build</text>
+        <text x="140" y="370" text-anchor="middle" class="vl-title vl-1">Deployment</text>
+        <text x="140" y="390" text-anchor="middle" class="vl-title vl-1">Ownership</text>
+        <text x="140" y="410" text-anchor="middle" class="vl-sub vl-1">SOPs · Workflows · Go-live</text>
+        <text x="460" y="370" text-anchor="middle" class="vl-title vl-2">Product</text>
+        <text x="460" y="390" text-anchor="middle" class="vl-title vl-2">Signal</text>
+        <text x="460" y="410" text-anchor="middle" class="vl-sub vl-2">Field learning · Roadmap input</text>
+        <circle cx="300" cy="265" r="62" class="vc-center"/>
+        <text x="300" y="257" text-anchor="middle" class="vc-center-t">Concierge</text>
+        <text x="300" y="280" text-anchor="middle" class="vc-center-t">Architect</text>
+      </svg>
+      <div class="venn-detail" id="vennDetail">
+        <div class="venn-detail-dot" id="vennDetailDot"></div>
+        <div>
+          <div class="venn-detail-title" id="vennDetailTitle"></div>
+          <div class="venn-detail-body" id="vennDetailBody"></div>
+        </div>
+      </div>
+      <div class="venn-legend">
+        <div class="venn-legend-item" data-v="0"><span class="venn-legend-dot" style="background:var(--accent)"></span>Pre-sales Architecture</div>
+        <div class="venn-legend-item" data-v="1"><span class="venn-legend-dot" style="background:var(--copper)"></span>Deployment Ownership</div>
+        <div class="venn-legend-item" data-v="2"><span class="venn-legend-dot" style="background:var(--slate)"></span>Product Signal</div>
+      </div>
+    </div>
+    <p class="comp-note reveal">Three skills. One operator. The unifying capability is translation between business reality and AI architecture.</p>
+  </div>
+</section>
+
+<!-- Ch2: Walkthrough -->
+<section id="ch2" class="section">
+  <div class="wrap-wide">
+    <div class="chapter-head reveal">
+      <div class="chapter-num">Chapter 02</div>
+      <h2 class="chapter-title">How it works, <em>stage by stage.</em></h2>
+    </div>
+    <p class="caption reveal">Click through the seven stages to see the role in action. Each stage shows what the customer needs, what the Concierge Architect does, and what ships.</p>
+    <div class="reveal">
+    <div class="walkthrough">
+      <div class="walk-header">
+        <div>
+          <div class="walk-client"><em>Helix</em> Bank</div>
+          <div class="walk-meta">Hypothetical · UK business banking · ~80K monthly tickets</div>
+        </div>
+        <div class="walk-tag">Illustrative example</div>
+      </div>
+      <div class="walk-stages" id="walkStages">
+        <div class="walk-progress-line"><div class="walk-progress-fill" id="walkFill"></div></div>
+        <button class="walk-stage active" data-i="0"><div class="walk-dot">01</div><div class="walk-stage-name">Discovery</div></button>
+        <button class="walk-stage" data-i="1"><div class="walk-dot">02</div><div class="walk-stage-name">Scoping</div></button>
+        <button class="walk-stage" data-i="2"><div class="walk-dot">03</div><div class="walk-stage-name">Build</div></button>
+        <button class="walk-stage" data-i="3"><div class="walk-dot">04</div><div class="walk-stage-name">Go-live</div></button>
+        <button class="walk-stage" data-i="4"><div class="walk-dot">05</div><div class="walk-stage-name">Playbook</div></button>
+        <button class="walk-stage" data-i="5"><div class="walk-dot">06</div><div class="walk-stage-name">Feedback</div></button>
+        <button class="walk-stage" data-i="6"><div class="walk-dot">07</div><div class="walk-stage-name">Expand</div></button>
+      </div>
+      <div class="walk-detail" id="walkDetail">
+        <div><div class="walk-col-label col-accent">Customer reality</div><div class="walk-col-heading" id="wR">Helix flags that 35% of their 80K monthly tickets are cross-border payment disputes.</div><div class="walk-col-body" id="wRb">Their support team is 42 agents, growing faster than ticket volume. CFO wants margin back.</div></div>
+        <div><div class="walk-col-label col-copper">What the role does</div><div class="walk-col-heading" id="wD">Joins call two. Maps the problem and the people.</div><div class="walk-col-body" id="wDb">Architects the deployment live on the call. But also reads the room: who needs this to work for their next promotion, who is threatened by automation, who controls budget. Enterprise deals close on incentives as much as product.</div></div>
+        <div><div class="walk-col-label col-slate">What ships</div><div class="walk-col-heading" id="wS">A scoping document the CFO can sign off in one meeting.</div><div class="walk-col-body" id="wSb">Architecture, phased ROI, 12-week delivery plan, integration list. Deal signed within 14 days.</div></div>
+      </div>
+      <div class="walk-nav">
+        <button class="walk-btn" id="wPrev" disabled>Previous</button>
+        <div class="walk-counter">Stage <span id="wCur">01</span> of 07</div>
+        <button class="walk-btn" id="wNext">Next</button>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ch3: Paradigm -->
+<section id="ch3" class="ch3-section">
+  <div class="ch3-hero">
+    <div class="wrap">
+      <div class="ch3-num reveal">Chapter 03</div>
+      <div class="ch3-statement reveal">Today every platform <em>responds</em>.</div>
+      <div class="ch3-statement ch3-statement-big reveal">Tomorrow's will <em>operate</em>.</div>
+      <p class="ch3-sub reveal">The agent detects, locates, verifies, acts with approval where consequential, and reports. The interface becomes a theatre of work, generative UI adapting per context. Sierra, Decagon ($4.5B, a16z-backed), and Intercom Fin can all take backend actions today. The differentiator is not capability. It is trust architecture: granular permissions, auditable execution, and interfaces that adapt per context. Lorikeet is positioned to define this next layer.</p>
+    </div>
+  </div>
+  <div class="ch3-callout-wrap">
+    <div class="wrap-wide">
+      <div class="reveal">
+        <div class="paradigm-visual">
+          <div class="paradigm-side before">
+            <div class="paradigm-side-label">Today · Respond</div>
+            <div class="paradigm-side-title">Customer asks. Agent follows a fixed workflow. One interface fits all.</div>
+            <div class="paradigm-flow">
+              <div class="paradigm-node"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.2"/></svg></div>Customer raises issue</div>
+              <div class="paradigm-connector"></div>
+              <div class="paradigm-node"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 6h6M5 8h4M5 10h5" stroke="currentColor" stroke-width="1"/></svg></div>Agent follows pre-built workflow</div>
+              <div class="paradigm-connector"></div>
+              <div class="paradigm-node"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8H2z" stroke="currentColor" stroke-width="1.2"/><path d="M5 7h6" stroke="currentColor" stroke-width="1"/></svg></div>Same interface regardless of context</div>
+              <div class="paradigm-connector"></div>
+              <div class="paradigm-node" style="opacity:0.5"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M6 8h4M8 6v4" stroke="currentColor" stroke-width="1.2"/></svg></div>Resolution possible, but interface is rigid</div>
+            </div>
+          </div>
+          <div class="paradigm-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="paradigm-side after">
+            <div class="paradigm-side-label">Tomorrow · Operate</div>
+            <div class="paradigm-side-title">Agent detects. Agent acts. Interface adapts.</div>
+            <div class="paradigm-flow">
+              <div class="paradigm-node highlight"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="var(--accent)" stroke-width="1.2"/></svg></div>Agent monitors, detects event<span class="multiplier">24/7</span></div>
+              <div class="paradigm-connector"></div>
+              <div class="paradigm-node highlight"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M10 5l3 3-3 3" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round"/></svg></div>Agent operates internal systems<span class="multiplier">100x</span></div>
+              <div class="paradigm-connector"></div>
+              <div class="paradigm-node highlight"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="2" stroke="var(--accent)" stroke-width="1.2"/><path d="M5 7h6M5 9h3" stroke="var(--accent)" stroke-width="1"/><circle cx="11" cy="9" r="1" fill="var(--accent)"/></svg></div>Generates adaptive interface for user</div>
+              <div class="paradigm-connector"></div>
+              <div class="paradigm-node highlight"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-6" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>User approves. Resolution complete.</div>
+              <div class="paradigm-connector"></div>
+              <div class="paradigm-node highlight" style="opacity:0.6"><div class="paradigm-node-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1" stroke="var(--accent)" stroke-width="1.2"/><path d="M5 8h6M8 5v6" stroke="var(--accent)" stroke-width="0.8" opacity="0.5"/><circle cx="10" cy="6" r="1.5" fill="var(--accent)" opacity="0.6"/></svg></div>Next: agent guides the customer's own screen<span class="multiplier">new</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="paradigm-quote-wrap">
+          <p class="paradigm-quote-text">"Software going headless is inevitable in a world where agents use the tools 100X more than people do."</p>
+          <p class="paradigm-quote-cite">Aaron Levie · CEO, Box · April 2026</p>
+        </div>
+        <div class="paradigm-proof">
+          <div class="paradigm-proof-dot"></div>
+          <div class="paradigm-proof-text"><strong>Lorikeet already has a Claude connector.</strong> The infrastructure for headless agent operation exists. The Concierge Architect role is how Lorikeet frames this shift, sells it, and deploys it at enterprise scale.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ch3-demo">
+    <div class="wrap-wide">
+      <div class="ch3-demo-label reveal">
+        <span>What this looks like in practice</span>
+        <span class="ch3-demo-tag">Interactive demo · click to approve</span>
+      </div>
+      <div class="reveal">
+        <!-- Theatre -->
+        <div class="theatre-wrap">
+          <div class="theatre-tabs" id="theatreTabs">
+            <button class="theatre-tab active" data-ctx="fraud"><span class="theatre-tab-label">Fraud</span><span class="theatre-tab-tag">fintech</span></button>
+            <button class="theatre-tab" data-ctx="reschedule"><span class="theatre-tab-label">Reschedule</span><span class="theatre-tab-tag">healthtech</span></button>
+            <button class="theatre-tab" data-ctx="business"><span class="theatre-tab-label">Payroll</span><span class="theatre-tab-tag">B2B fintech</span></button>
+                      </div>
+          <div class="theatre-screen">
+            <div class="theatre-statusbar">
+              <div class="theatre-status" id="tStatus"><span class="theatre-status-dot" id="tDot"></span><span id="tStatusTxt">Agent operating</span></div>
+              <div class="theatre-timer" id="tTimer">0:00</div>
+            </div>
+            <div class="theatre-customer">
+              <div class="theatre-avatar" id="tAvatar">LM</div>
+              <div class="theatre-msg" id="tMsg">Someone just tried to use my card in Mexico City. I'm in London. Help.</div>
+            </div>
+            <div class="theatre-divider"><span>Concierge response</span></div>
+            <div class="theatre-workspace" id="tWorkspace"></div>
+          </div>
+          <div id="tBanner" style="display:none" class="theatre-banner">
+            <div><div class="theatre-banner-label">Resolved</div><div class="theatre-banner-text" id="tBannerText"></div></div>
+            <button class="theatre-replay" id="tReplay">Replay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Ch4: Prospect -->
+<section id="ch4" class="section">
+  <div class="wrap">
+    <div class="chapter-head reveal">
+      <div class="chapter-num">Chapter 04</div>
+      <h2 class="chapter-title">The prospect <em>in focus.</em></h2>
+    </div>
+    <p class="caption reveal">A working Concierge Architect brings a named prospect and a sourced thesis. Here is why Wise is the right move, in four public signals.</p>
+    <div class="reveal">
+    <div class="prospect-card">
+      <div class="prospect-disclosure"><strong>On geography.</strong> Wise is headquartered in London with 14 offices globally, including a Singapore hub. I am applying to a Sydney role. This works because Lorikeet opened its London office in February 2026 for EMEA expansion, and the Concierge Architect motion runs across time zones. Wise's Singapore presence also aligns with Lorikeet's Asia-Pacific coverage.</div>
+      <div class="prospect-head">
+        <div class="prospect-brand"><em>Wise</em></div>
+        <div class="prospect-tag">Right now · Right fit</div>
+      </div>
+      <div class="opp-scorecard reveal">
+        <div class="opp-header"><span>Opportunity scorecard</span><span class="opp-tag">Why this prospect, why now</span></div>
+        <div class="opp-metrics">
+          <div class="opp-metric"><div class="opp-metric-num">18.9M</div><div class="opp-metric-label">Active customers (FY2026)</div><div class="opp-metric-src">Wise investor reporting</div></div>
+          <div class="opp-metric"><div class="opp-metric-num">£18-25</div><div class="opp-metric-label">Industry cost per ticket</div><div class="opp-metric-src">Nextiva 2025</div></div>
+          <div class="opp-metric"><div class="opp-metric-num accent">Zendesk</div><div class="opp-metric-label">CX platform (since 2019)</div><div class="opp-metric-src">zendesk.co.uk/customer/wise</div></div>
+          <div class="opp-metric"><div class="opp-metric-num copper">4 / 4</div><div class="opp-metric-label">Signal strength</div><div class="opp-metric-src">See below</div></div>
+        </div>
+        <div class="opp-compare">
+          <div class="opp-compare-side opp-current">
+            <div class="opp-compare-head">Now · Zendesk</div>
+            <div class="opp-compare-list">
+              <div class="opp-compare-item"><span class="opp-x">&#x2715;</span>Same interface for every user and context</div>
+              <div class="opp-compare-item"><span class="opp-x">&#x2715;</span>Pre-configured workflows, limited adaptability</div>
+              <div class="opp-compare-item"><span class="opp-x">&#x2715;</span>Actions possible within rigid templates</div>
+              <div class="opp-compare-item"><span class="opp-x">&#x2715;</span>Limited operational depth in regulated workflows</div>
+            </div>
+          </div>
+          <div class="opp-compare-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="opp-compare-side opp-proposed">
+            <div class="opp-compare-head">After · Lorikeet</div>
+            <div class="opp-compare-list">
+              <div class="opp-compare-item"><span class="opp-check">&#x2713;</span>End-to-end resolution with judgment calls</div>
+              <div class="opp-compare-item"><span class="opp-check">&#x2713;</span>Interface adapts per context and urgency</div>
+              <div class="opp-compare-item"><span class="opp-check">&#x2713;</span>Audited actions with user approval</div>
+              <div class="opp-compare-item"><span class="opp-check">&#x2713;</span>Seamless handoff with full context</div>
+            </div>
+          </div>
+        </div>
+        <div class="opp-signals">
+          <div class="opp-signals-label">Signal strength</div>
+          <div class="opp-signals-bar"><div class="opp-signals-fill"></div></div>
+          <div class="opp-signals-grid">
+            <div class="opp-signal-pip active">Displaceable incumbent</div>
+            <div class="opp-signal-pip active">Regulatory pressure</div>
+            <div class="opp-signal-pip active">Nasdaq listing timing</div>
+            <div class="opp-signal-pip active">Airwallex adjacency</div>
+          </div>
+        </div>
+      </div>
+      <div class="signals-timeline">
+        <div class="signal"><div class="signal-marker"><div class="signal-dot"></div><div class="signal-line"></div></div><div class="signal-content"><div class="signal-tag">Signal 01 · Incumbent</div><div class="signal-title">Zendesk customer since 2019</div><div class="signal-body">Published case study on Zendesk's own site. Their Head of Customer Support describes Zendesk as a tool for "scalable human support." Infrastructure, not intelligence. Displaceable. Compare with Revolut, who just launched AIR in-house.</div><div class="signal-src">Source · zendesk.co.uk/customer/wise (first-party customer story)</div></div></div>
+        <div class="signal"><div class="signal-marker"><div class="signal-dot"></div><div class="signal-line"></div></div><div class="signal-content"><div class="signal-tag">Signal 02 · Regulatory pressure</div><div class="signal-title">Compliance enforcement is generating CX load</div><div class="signal-body">Belgium's NBB forced a remediation plan in late 2024, triggering mass account freezes. US multistate settlement of $4.2M in July 2025 over AML gaps. These generate high-consequence tickets (KYC disputes, AML reviews, cross-jurisdiction escalations) that Zendesk cannot automate.</div><div class="signal-src">Source · Financial Times (Nov 2024), NY DFS press release (Jul 2025)</div></div></div>
+        <div class="signal"><div class="signal-marker"><div class="signal-dot"></div><div class="signal-line"></div></div><div class="signal-content"><div class="signal-tag">Signal 03 · Timing</div><div class="signal-title">Nasdaq primary listing on May 11, 2026</div><div class="signal-body">Primary listing moving from LSE to Nasdaq on May 11. Wise's published FRT is 15 hours for 80% of email queries. That number does not survive US analyst scrutiny. A concierge compressing FRT to minutes is an investor-narrative asset.</div><div class="signal-src">Source · Finance Magnates (Apr 2026), Wise FY2026 reporting</div></div></div>
+        <div class="signal"><div class="signal-marker"><div class="signal-dot"></div></div><div class="signal-content"><div class="signal-tag">Signal 04 · Adjacency</div><div class="signal-title">Airwallex is already a Lorikeet customer</div><div class="signal-body">Lorikeet already serves Airwallex (cross-border payments, B2B). Wise is the consumer/SMB analog. Same domain, different segment, no conflict. Deployment playbooks transfer. QED's fintech thesis maps cleanly.</div><div class="signal-src">Source · Lorikeet customer list (public), QED Investors portfolio thesis</div></div></div>
+      </div>
+      <div class="deploy-section reveal">
+        <div class="deploy-label">How this lands</div>
+        <div class="deploy-phases">
+          <div class="deploy-phase">
+            <div class="deploy-phase-num">Phase 1 · Weeks 1-6</div>
+            <div class="deploy-phase-title">Coexist. Lorikeet handles what Zendesk cannot.</div>
+            <div class="deploy-phase-body">KYC disputes, account freeze queries, and AML escalations route to Lorikeet. Everything else stays in Zendesk. Wise's team sees immediate relief on their hardest tickets. No migration risk.</div>
+            <div class="deploy-phase-stack"><span class="deploy-chip zen">Zendesk · primary</span><span class="deploy-chip lor">Lorikeet · compliance workflows</span></div>
+            <div class="deploy-arrow"></div>
+          </div>
+          <div class="deploy-phase">
+            <div class="deploy-phase-num">Phase 2 · Weeks 7-14</div>
+            <div class="deploy-phase-title">Expand. Concierge covers the next tier.</div>
+            <div class="deploy-phase-body">Transfer disputes, multi-currency questions, card issues move to Lorikeet. Playbooks from Phase 1 accelerate configuration. Zendesk handles general enquiries and routing.</div>
+            <div class="deploy-phase-stack"><span class="deploy-chip zen">Zendesk · routing + general</span><span class="deploy-chip lor">Lorikeet · complex resolution</span></div>
+            <div class="deploy-arrow"></div>
+          </div>
+          <div class="deploy-phase">
+            <div class="deploy-phase-num">Phase 3 · Steady state</div>
+            <div class="deploy-phase-title">Lorikeet resolves. Zendesk routes.</div>
+            <div class="deploy-phase-body">Lorikeet is the resolution engine across all high-value workflows. Zendesk persists as ticketing infrastructure and routing layer. No rip-and-replace. Wise keeps their investment.</div>
+            <div class="deploy-phase-stack"><span class="deploy-chip zen dim">Zendesk · infrastructure</span><span class="deploy-chip lor">Lorikeet · resolution engine</span></div>
+          </div>
+        </div>
+        <div class="deploy-label">Stakeholder map</div>
+        <div class="stakeholder-grid">
+          <div class="stakeholder">
+            <div class="stakeholder-role">Champion</div>
+            <div class="stakeholder-title">Head of Customer Support</div>
+            <div class="stakeholder-hook">"My team is drowning in KYC and AML tickets that Zendesk cannot automate. Show me something that resolves them."</div>
+          </div>
+          <div class="stakeholder">
+            <div class="stakeholder-role">Economic buyer</div>
+            <div class="stakeholder-title">CFO / VP Finance</div>
+            <div class="stakeholder-hook">"We spend £18-25 per ticket on compliance queries. The Nasdaq listing needs this number moving in the right direction."</div>
+          </div>
+          <div class="stakeholder">
+            <div class="stakeholder-role">Technical gate</div>
+            <div class="stakeholder-title">CTO / Head of Engineering</div>
+            <div class="stakeholder-hook">"Does this sit alongside Zendesk or replace it? What is the integration surface? How do permissions work across jurisdictions?"</div>
+          </div>
+          <div class="stakeholder">
+            <div class="stakeholder-role">Compliance sponsor</div>
+            <div class="stakeholder-title">Head of Compliance / MLRO</div>
+            <div class="stakeholder-hook">"The NBB remediation plan requires better audit trails on customer interactions. Can this agent produce them?"</div>
+          </div>
+        </div>
+      </div>
+
+      
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ch5: About -->
+<section id="ch5" class="section section-warm">
+  <div class="wrap">
+    <div class="chapter-head reveal">
+      <div class="chapter-num">Chapter 05</div>
+      <h2 class="chapter-title">About.</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-bio reveal">
+        <p class="about-opener">I am Gaurav.</p>
+        <p>Head of AI and Product at <em>Strategia</em> from day one. A workforce intelligence platform operating across healthcare, maritime, and financial services in Australia, the Middle East, and Southeast Asia.</p>
+        <p>Before Strategia, co-founder at Xibon AI through to acquisition. Post-acquisition, Head of AI Strategy at Warp Development, running AI strategy across a portfolio of enterprise clients, learning what it takes to deploy AI inside organisations that cannot afford to experiment in production.</p>
+        <p>I have been following Steve and Lorikeet on LinkedIn for a while. The London FDPM role came up during a search. The more I thought about it, the more clearly a different shape of the same motion emerged. A Sydney-anchored seat, sitting closer to Steve, Jamie, and the product core.</p>
+      </div>
+      <div class="about-meta reveal">
+        <div class="about-row"><div class="about-row-label">Location</div><div class="about-row-val">Adelaide, Australia · Open to relocation to Sydney and potentially elsewhere</div></div>
+        <div class="about-row"><div class="about-row-label">Current</div><div class="about-row-val">Head of AI and Product, Strategia</div></div>
+        <div class="about-row"><div class="about-row-label">Previously</div><div class="about-row-val">Head of AI Strategy, Warp Development · Co-founder Xibon AI (acquired)</div></div>
+        <div class="about-row"><div class="about-row-label">Selected</div><div class="about-row-val">Blackbird Ventures Giants · Cohort 4</div></div>
+        <div class="about-row"><div class="about-row-label">Academic</div><div class="about-row-val">GradCert Data Science &amp; AI (93%) · MBA</div></div>
+        <div class="about-row"><div class="about-row-label">Personal</div><div class="about-row-val">gauravdevsarmah.com</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-inner">
+      <span>Concierge Architect · Strategic read</span>
+      <span class="footer-right">gauravdevsarmah.com</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ── Scroll progress ── */
+window.addEventListener('scroll',()=>{const h=document.documentElement;const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;document.getElementById('scrollProgress').style.width=pct+'%'});
+
+/* ── Smooth scroll ── */
+function goto(id){const el=document.getElementById(id);if(el){const y=el.getBoundingClientRect().top+window.scrollY-20;window.scrollTo({top:y,behavior:'smooth'})}}
+
+/* ── Scroll reveal ── */
+const ro=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+/* ── Active section ── */
+const sections=['hero','ch1','ch2','ch3','ch4','ch5'];
+const sio=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      document.querySelectorAll('[data-section]').forEach(el=>el.classList.toggle('active',el.dataset.section===id));
+      if(id!=='hero')document.getElementById('topBar').classList.add('show');
+    }
+  });
+},{threshold:0.15,rootMargin:'-5% 0px -55% 0px'});
+sections.forEach(id=>{const el=document.getElementById(id);if(el)sio.observe(el)});
+
+/* ── Hero entrance ── */
+setTimeout(()=>{
+  document.getElementById('heroTop').classList.add('show');
+  document.getElementById('heroBottom').classList.add('show');
+  document.getElementById('heroEyebrow').classList.add('show');
+  setTimeout(()=>document.getElementById('hw1').classList.add('show'),250);
+  setTimeout(()=>document.getElementById('hw2').classList.add('show'),450);
+  setTimeout(()=>document.getElementById('heroSub').classList.add('show'),650);
+  setTimeout(()=>document.getElementById('heroNav').classList.add('show'),900);
+},150);
+
+/* ── Venn ── */
+const vennDomains=[
+  {id:0,color:'var(--accent)',label:'Pre-sales Architecture',detail:'Map customer workflows, build ROI models, design deployment architecture. Turn ambiguity into a document a CFO can sign.'},
+  {id:1,color:'var(--copper)',label:'Deployment Ownership',detail:'Embed with the customer team. Extract SOPs. Configure, test, launch. Own the first 72 hours personally.'},
+  {id:2,color:'var(--slate)',label:'Product Signal',detail:'Feed deployment patterns back into product. Write internal playbooks. Make every deployment make the next one faster.'},
+];
+const vennSvg=document.getElementById('vennSvg');
+const vennDetail=document.getElementById('vennDetail');
+const vennDetailDot=document.getElementById('vennDetailDot');
+const vennDetailTitle=document.getElementById('vennDetailTitle');
+const vennDetailBody=document.getElementById('vennDetailBody');
+
+function vennHover(id){
+  [0,1,2].forEach(i=>{
+    const el=document.getElementById('ve'+i);
+    el.className=`vc vc${i}${id===null?'':(i===id?' hl':' dim')}`;
+  });
+  if(id===null){vennDetail.classList.remove('show')}
+  else{
+    const d=vennDomains[id];
+    vennDetailDot.style.background=d.color;
+    vennDetailTitle.textContent=d.label;
+    vennDetailBody.textContent=d.detail;
+    vennDetail.classList.add('show');
+  }
+}
+
+[0,1,2].forEach(i=>{
+  const el=document.getElementById('ve'+i);
+  el.addEventListener('mouseenter',()=>vennHover(i));
+  el.addEventListener('mouseleave',()=>vennHover(null));
+});
+document.querySelectorAll('.venn-legend-item').forEach(el=>{
+  const v=parseInt(el.dataset.v);
+  el.addEventListener('mouseenter',()=>vennHover(v));
+  el.addEventListener('mouseleave',()=>vennHover(null));
+});
+const vio=new IntersectionObserver(([e])=>{if(e.isIntersecting)vennSvg.classList.add('animate')},{threshold:0.25});
+vio.observe(vennSvg);
+
+/* ── Walkthrough ── */
+const walkData=[
+  {r:'Helix flags that 35% of their 80K monthly tickets are cross-border payment disputes.',rb:'Their support team is 42 agents, growing faster than ticket volume. CFO wants margin back.',d:'Joins call two. Maps the problem and the people.',db:'Architects the deployment live on the call. But also reads the room: who needs this to work for their next promotion, who is threatened by automation, who controls budget. Enterprise deals close on incentives as much as product.',s:'A scoping document the CFO can sign off in one meeting.',sb:'Architecture, phased ROI, 12-week delivery plan, integration list. Deal signed within 14 days.'},
+  {r:'Helix\'s Head of Ops needs the concierge to fit their existing Stripe, Wise, and internal ledger stack.',rb:'Two systems speak REST, one speaks SOAP. Dispute evidence lives across four tools.',d:'Scopes the integration surface. Designs the concierge workflow end to end.',db:'Diagrams every SOP the human team follows. Decides what the concierge owns versus escalates. Sets success metrics with the customer.',s:'Integration specification and deployment runbook.',sb:'List of APIs, fields, permissions, human handoff triggers. Matches the customer\'s compliance posture.'},
+  {r:'The build phase is where deployments usually stall. Scope creep, SOP gaps, integration surprises.',rb:'Helix\'s team is excited but nervous. Their customers will notice if this goes wrong.',d:'Runs weekly build standups. Extracts SOPs from the Helix support team by interview.',db:'Embeds with Helix ops for five days. Configures the concierge with Lorikeet\'s engineering team. Runs shadow mode against 1,000 real tickets before go-live.',s:'A concierge configured, tested, and validated on Helix\'s real data.',sb:'Accuracy benchmarks hit. Human handoff rate acceptable. Compliance team signed off. Ready for production.'},
+  {r:'Go-live is the moment everything real happens. Live customers. Real money. Live metrics.',rb:'Helix watches the first resolution happen in 47 seconds. Then the second in 38. Then 200 more that day.',d:'Sits with the Helix team on launch day. Monitors every escalation personally for the first 72 hours.',db:'Catches two SOP gaps in the first afternoon. Ships fixes within two hours. Reviews every handoff for the first week.',s:'Production concierge resolving 200 tickets per day by day three.',sb:'FRT dropped from 26 minutes to 52 seconds. CSAT holding above 4.4. Helix\'s CFO gets the numbers in a weekly email.'},
+  {r:'Every Lorikeet deployment should make the next one faster.',rb:'What the Concierge Architect learned at Helix sits in their head unless someone writes it down.',d:'Turns Helix\'s deployment into two reusable assets: a deployment playbook and a sales playbook.',db:'Deployment playbook: the cross-border dispute workflow, integration shortcuts, SOP extraction questions. Sales playbook: which stakeholder cares about what, the objections that surfaced, the ROI framing that closed the deal, what to say when the CTO asks about Zendesk coexistence.',s:'Fintech Deployment Playbook v1 + Sales Playbook v1.',sb:'Next fintech customer deploys 40% faster and closes faster because the team is not starting from zero on either front.'},
+  {r:'Helix\'s operations team notices the concierge struggling with multi-currency reconciliation edge cases.',rb:'Without a structured path, this feedback becomes an email that dies in a Jira backlog.',d:'Runs the weekly Product Feedback Ritual with Sydney.',db:'Surfaces the gap with severity, workaround, customer impact, and revenue implication. Triaged with the product team inside 48 hours. Decision made within the week.',s:'A field-to-product intelligence loop.',sb:'Multi-currency reconciliation fix ships in three weeks. Helix\'s ops team hears back. The next fintech deployment does not hit the same gap.'},
+  {r:'Three months after go-live, Helix\'s CFO wants to know what else the concierge could do.',rb:'The support automation is working. The Concierge Architect has earned the right to propose more.',d:'Brings a second deployment proposal to the Helix leadership team.',db:'KYC exception handling. Same platform, new workflow, same operational pattern. ROI model already half-built because the first deployment provided the data.',s:'A second signed deployment without a separate sales cycle.',sb:'Helix\'s ACV doubles. The Concierge Architect motion turns one customer relationship into two workflows, three, four over the year that follows.'},
+];
+let walkIdx=0;
+function setWalk(i){
+  walkIdx=i;
+  document.querySelectorAll('.walk-stage').forEach((el,j)=>{
+    el.classList.toggle('active',j===i);
+    el.classList.toggle('done',j<i);
+  });
+  const d=walkData[i];
+  document.getElementById('wR').textContent=d.r;
+  document.getElementById('wRb').textContent=d.rb;
+  document.getElementById('wD').textContent=d.d;
+  document.getElementById('wDb').textContent=d.db;
+  document.getElementById('wS').textContent=d.s;
+  document.getElementById('wSb').textContent=d.sb;
+  document.getElementById('wCur').textContent=String(i+1).padStart(2,'0');
+  document.getElementById('wPrev').disabled=i===0;
+  document.getElementById('wNext').disabled=i===walkData.length-1;
+  document.getElementById('walkFill').style.width=`${(i/(walkData.length-1))*100}%`;
+}
+document.querySelectorAll('.walk-stage').forEach(el=>el.addEventListener('click',()=>setWalk(parseInt(el.dataset.i))));
+document.getElementById('wPrev').addEventListener('click',()=>walkIdx>0&&setWalk(walkIdx-1));
+document.getElementById('wNext').addEventListener('click',()=>walkIdx<walkData.length-1&&setWalk(walkIdx+1));
+
+/* ── Theatre ── */
+const COLS=['var(--accent)','var(--copper)','oklch(0.42 0.10 148)'];
+const SCENARIOS={
+  fraud:{
+    avatar:'LM',msg:"Someone just tried to use my card in Mexico City. I'm in London. Help.",
+    cards:[
+      {label:'Transaction scan',time:'0:02',body:'Flagged: $214.30 at Farmacia CDMX, Mexico City. Card ending 4821. Last verified London location: 14 min ago.',color:0},
+      {label:'Profile analysis',time:'0:03',body:'Assessing transaction against your spending profile and travel history.',riskData:[{label:'Previous transactions in Mexico',val:'0 (never)',status:'alert'},{label:'Card activity today (London)',val:'3 verified',status:'ok'},{label:'Merchant: Farmacia CDMX',val:'Never visited',status:'alert'},{label:'Amount vs your avg foreign spend',val:'3.2x above typical',status:'alert'},{label:'Composite risk score',val:'0.97 / 1.00',status:'score'}],color:0},
+      {label:'Geo verification',time:'0:05',body:'Login IP: London (verified). Transaction origin: Mexico City. Distance: 8,900 km. Travel time impossible.',checks:['IP geolocation confirmed','Device fingerprint mismatch','Velocity check failed'],hasMap:true,color:0},
+      {label:'Recommended action',time:'0:07',body:'Based on profile analysis and geo verification, this transaction is fraudulent. Freeze card 4821 and issue replacement?',freezeApproval:true,color:1},
+      {label:'Card frozen',time:'0:08',body:'Card 4821 frozen. Replacement dispatched. Arrives in 2 business days. Digital card active immediately in your app.',hasCard:true,color:1},
+      {label:'Resolution',time:'0:10',body:'Dispute filed with Visa. Provisional credit of $214.30 applied. Case ref: #FRD-2026-8841.',stats:[{label:'Provisional credit',val:'$214.30'},{label:'Resolution ETA',val:'< 48hrs'},{label:'Post-freeze risk',val:'0.02'}],color:2},
+    ],
+    banner:'Fraud detected, card frozen, credit applied. Approved by you. Auditable trail preserved.',
+    pauseAt:3
+  },
+  reschedule:{
+    avatar:'SP',msg:"I need to move my Thursday cardiology appointment. Mornings work better next week.",
+    cards:[
+      {label:'Calendar scan',time:'0:02',body:'Current: Thu Apr 23, 2:30 PM with Dr. Reeves, Cardiology. Scanning Dr. Reeves availability and cross-referencing with your insurance coverage...',color:0},
+      {label:'Availability matched',time:'0:05',body:'3 morning slots found across next week. Greyed cells are booked or outside insurance coverage. Tap to select:',calendar:true,slots:[{day:'Mon 27',time:'9:15 AM',note:'Recommended',detail:'Shortest wait'},{day:'Tue 28',time:'10:00 AM',note:'',detail:'Dr. Reeves preferred'},{day:'Thu 30',time:'8:45 AM',note:'',detail:'Earliest available'}],color:1},
+      {label:'Confirmed',time:'0:08',body:'',slotConfirm:true,color:2},
+    ],
+    banner:'Appointment rescheduled. Calendar synced. Reminder set.',
+    pauseAt:1,
+    isSlot:true
+  },
+  business:{
+    avatar:'RM',msg:"Our payroll run failed overnight. 340 employees. Payday is tomorrow.",
+    cards:[
+      {label:'Diagnosis',time:'0:03',body:'Payroll batch #PR-2026-0418 failed at 03:14 UTC. Root cause: insufficient funds.',balanceBars:{operating:341800,required:482100,reserve:892400,shortfall:140300},color:0},
+      {label:'Liquidity scan',time:'0:06',body:'Scanning linked accounts... Reserve account holds $892,400. Transfer of $140,300 requires authorisation.',stats:[{label:'Shortfall',val:'$140,300'},{label:'Reserve balance',val:'$892,400'},{label:'Employees affected',val:'340'}],color:0},
+      {label:'Action required',time:'0:09',body:'Transfer $140,300 from reserve to operating account and re-trigger payroll batch?',transferApproval:true,color:1},
+      {label:'Payroll re-triggered',time:'0:12',body:'Funds transferred. Payroll batch re-submitted. All 340 employees paid on schedule.',color:2},
+    ],
+    banner:'Payroll rescued. 340 employees paid on time. Authorised by you.',
+    pauseAt:2
+  },
+
+};
+
+let tCtx='fraud',tCards=[],tStatus='idle',tElapsed=0,tPaused=false,tTimers=[],tInterval=null,tSelectedSlot=null,tPendingApproval=null;
+const tWorkspace=document.getElementById('tWorkspace');
+const tStatusEl=document.getElementById('tStatus');
+const tStatusTxt=document.getElementById('tStatusTxt');
+const tDot=document.getElementById('tDot');
+const tTimerEl=document.getElementById('tTimer');
+const tBanner=document.getElementById('tBanner');
+const tBannerText=document.getElementById('tBannerText');
+const tAvatar=document.getElementById('tAvatar');
+const tMsg=document.getElementById('tMsg');
+
+function tFmt(s){return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`}
+function tClear(){tTimers.forEach(t=>clearTimeout(t));tTimers=[];if(tInterval){clearInterval(tInterval);tInterval=null}tWorkspace.innerHTML='';tBanner.style.display='none';tPaused=false;tSelectedSlot=null;tPendingApproval=null;tElapsed=0;tTimerEl.textContent='0:00';tStatusEl.className='theatre-status';tStatusTxt.textContent='Agent operating'}
+
+function tSetStatus(s,txt){tStatusEl.className='theatre-status'+' '+(s||'');tStatusTxt.textContent=txt||'Agent operating'}
+
+function tAddCard(cardData,delay){
+  return new Promise(res=>{
+    const t=setTimeout(()=>{
+      const card=document.createElement('div');
+      card.className='theatre-card';
+      card.style.setProperty('--card-accent',COLS[cardData.color||0]);
+      card.innerHTML=tBuildCard(cardData);
+      tWorkspace.appendChild(card);
+      setTimeout(()=>{tWorkspace.scrollTop=tWorkspace.scrollHeight;
+      const gc=card.querySelector('.globe-container');if(gc)setTimeout(()=>initGlobe(gc.id),100);
+      },50);
+      // Wire interactive elements
+      if(cardData.freezeApproval||cardData.transferApproval){
+        tPendingApproval=cardData.freezeApproval?'freeze':'transfer';
+        tPaused=true;
+        tSetStatus('waiting','Awaiting your approval');
+        if(tInterval){clearInterval(tInterval);tInterval=null;}
+        const type=cardData.freezeApproval?'freeze':'transfer';
+        card.querySelector('.theatre-approve.primary').addEventListener('click',()=>tApprove(type,card,'approved'));
+        card.querySelector('.theatre-approve.secondary').addEventListener('click',()=>tApprove(type,card,'cancel'));
+      }
+      if(cardData.slots||cardData.calendar){
+        tPaused=true;tStatus='selecting';
+        tSetStatus('waiting','Awaiting selection');
+        if(tInterval){clearInterval(tInterval);tInterval=null;}
+        card.querySelectorAll('.theatre-slot,.cal-cell.available').forEach(btn=>{
+          btn.addEventListener('click',()=>{
+            card.querySelectorAll('.cal-cell.available,.theatre-slot').forEach(b=>{b.disabled=true;b.classList.remove('selected')});
+            btn.classList.add('selected');
+            tSlotSelect(btn.dataset.slot,btn.dataset.time,card);
+          });
+        });
+      }
+      res();
+    },delay);
+    tTimers.push(t);
+  });
+}
+
+function tBuildCard(c){
+  let html=`<div class="theatre-card-top"><div class="theatre-card-label"><span class="theatre-card-dot"></span>${c.label}</div><div class="theatre-card-time">${c.time}</div></div><div class="theatre-card-body">${c.body}</div>`;
+  if(c.riskData){html+=`<div class="theatre-risk">${c.riskData.map(r=>`<div class="risk-row"><span class="risk-label">${r.label}</span><span class="risk-val ${r.status}">${r.val}</span></div>`).join('')}</div>`}
+  if(c.checks){html+=`<div class="theatre-checks">${c.checks.map(ch=>`<div class="theatre-check">${checkIcon()}${ch}</div>`).join('')}</div>`}
+  if(c.balanceBars){const b=c.balanceBars;const maxV=b.reserve;html+=`<div class="theatre-balances"><div class="bal-row"><div class="bal-label">Operating</div><div class="bal-track"><div class="bal-fill operating" style="width:${(b.operating/maxV)*100}%"></div><div class="bal-fill required" style="width:${(b.required/maxV)*100}%"></div></div><div class="bal-val">$${(b.operating/1000).toFixed(0)}K</div></div><div class="bal-row"><div class="bal-label">Reserve</div><div class="bal-track"><div class="bal-fill reserve" style="width:${(b.reserve/maxV)*100}%"></div></div><div class="bal-val">$${(b.reserve/1000).toFixed(0)}K</div></div><div class="bal-shortfall">Shortfall: <strong>$${(b.shortfall).toLocaleString()}</strong></div></div>`}
+  if(c.hasMap){html+=tMap()}
+  if(c.stats){html+=`<div class="theatre-stats">${c.stats.map(s=>`<div><div class="theatre-stat-val">${s.val}</div><div class="theatre-stat-lbl">${s.label}</div></div>`).join('')}</div>`}
+  if(c.hasCard){html+=`<div class="theatre-frozen"><div class="theatre-frozen-card"><div class="theatre-frozen-chip"></div><div class="theatre-frozen-num">•••• 4821</div><div class="theatre-frozen-badge">Frozen</div></div></div>`}
+  if(c.compare){html+=`<div class="theatre-compare"><div class="theatre-cmp bad"><div class="theatre-cmp-lbl">${c.compare.bad.label}</div><div class="theatre-cmp-txt">${c.compare.bad.text}</div></div><div class="theatre-cmp good"><div class="theatre-cmp-lbl">${c.compare.good.label}</div><div class="theatre-cmp-txt">${c.compare.good.text}</div></div></div>`}
+  if(c.freezeApproval||c.transferApproval){html+=`<div class="theatre-approval"><button class="theatre-approve primary">${c.freezeApproval?'Freeze card 4821':'Authorise transfer of $140,300'}</button><button class="theatre-approve secondary">${c.freezeApproval?'It was actually me':'Decline'}</button></div>`}
+  if(c.calendar&&c.slots){
+    const days=['Mon 27','Tue 28','Wed 29','Thu 30','Fri 1'];
+    const times=['8:00','9:00','10:00','11:00'];
+    const avail={'Mon 27-9:00':{i:0,t:'9:15 AM',rec:true},'Tue 28-10:00':{i:1,t:'10:00 AM',rec:false},'Thu 30-8:00':{i:2,t:'8:45 AM',rec:false}};
+    html+=`<div class="theatre-calendar"><div class="cal-header">${days.map(d=>`<div class="cal-day-head">${d}</div>`).join('')}</div><div class="cal-grid">`;
+    times.forEach(tm=>{days.forEach(d=>{
+      const key=d+'-'+tm;const slot=avail[key];
+      if(slot){html+=`<button class="cal-cell available${slot.rec?' recommended':''}" data-slot="${slot.i}" data-time="${slot.t}"><div class="cal-time">${slot.t}</div>${slot.rec?'<div class="cal-rec">Best match</div>':''}</button>`}
+      else{html+=`<div class="cal-cell unavailable"><div class="cal-unavail">booked</div></div>`}
+    })});
+    html+=`</div></div>`;
+  } else if(c.slots){html+=`<div class="theatre-slots">${c.slots.map((s,i)=>`<button class="theatre-slot${s.note?' rec':''}" data-slot="${i}" data-time="${s.time}"><div class="theatre-slot-day">${s.day}</div><div class="theatre-slot-time">${s.time}</div><div class="theatre-slot-detail">${s.detail}</div>${s.note?`<div class="theatre-slot-note">${s.note}</div>`:''}</button>`).join('')}</div>`}
+  if(c.slotConfirm&&tSelectedSlot){html=html.replace('__SLOT__',tSelectedSlot)}
+  return html;
+}
+
+function checkIcon(){return`<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6.5" fill="none" stroke="var(--accent)" stroke-width="1"/><path d="M4 7l2 2 4-4" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+
+function tMap(){
+  const uid='globe_'+Date.now();
+  return`<div class="globe-container" id="${uid}"></div><div class="theatre-map-legend"><span class="map-legend-item verified">London · verified</span><span style="color:var(--ink-faint)">·</span><span class="map-legend-item suspicious">Mexico City · flagged</span></div>`;
+}
+
+function initGlobe(id){
+  const el=document.getElementById(id);
+  if(!el||el.dataset.init||typeof THREE==='undefined')return;
+  el.dataset.init='1';
+  const w=el.clientWidth,h=260;
+  el.style.height=h+'px';
+
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(45,w/h,0.1,1000);
+  cam.position.z=3.0;
+  const ren=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  ren.setSize(w,h);ren.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  ren.setClearColor(0x0a1412,1);
+  ren.domElement.style.borderRadius='0';
+  el.appendChild(ren.domElement);
+
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden';
+  el.appendChild(overlay);
+
+  const lonLabel=document.createElement('div');
+  lonLabel.className='globe-tag globe-tag-safe';
+  lonLabel.innerHTML='<span class="globe-tag-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1L10 3V6C10 8.5 8.5 10.5 6 11C3.5 10.5 2 8.5 2 6V3L6 1Z" stroke="currentColor" stroke-width="1.2"/><path d="M4 6l1.5 1.5L8 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="globe-tag-text"><strong>You are here</strong>London, UK</span>';
+  overlay.appendChild(lonLabel);
+
+  const mexLabel=document.createElement('div');
+  mexLabel.className='globe-tag globe-tag-danger';
+  mexLabel.innerHTML='<span class="globe-tag-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3.5V6.5M6 8v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span><span class="globe-tag-text"><strong>Transaction flagged</strong>Mexico City · $214.30</span>';
+  overlay.appendChild(mexLabel);
+
+  const distLabel=document.createElement('div');
+  distLabel.className='globe-dist';
+  distLabel.textContent='8,900 km apart';
+  overlay.appendChild(distLabel);
+
+  const group=new THREE.Group();
+
+  // Graticule (lat/lon grid lines)
+  const gratMat=new THREE.LineBasicMaterial({color:0x1a3a30,transparent:true,opacity:0.3});
+  for(let lat=-60;lat<=80;lat+=20){const pts=[];for(let lon=-180;lon<=180;lon+=5){pts.push(ll(lat,lon,1.005))}const g=new THREE.BufferGeometry().setFromPoints(pts);group.add(new THREE.Line(g,gratMat))}
+  for(let lon=-180;lon<180;lon+=30){const pts=[];for(let lat=-80;lat<=80;lat+=5){pts.push(ll(lat,lon,1.005))}const g=new THREE.BufferGeometry().setFromPoints(pts);group.add(new THREE.Line(g,gratMat))}
+
+  // Continent outlines (simplified coastlines)
+  const coastMat=new THREE.LineBasicMaterial({color:0x3d7a64,transparent:true,opacity:0.55});
+  const continents={
+    europe:[[71,-25],[69,-10],[63,-5],[58,-7],[51,-10],[43,-9],[36,-6],[36,0],[38,3],[41,2],[43,7],[44,12],[40,18],[39,23],[41,29],[45,30],[42,36],[44,40],[47,37],[50,30],[54,20],[55,14],[57,10],[56,8],[53,5],[52,4],[54,0],[58,-3],[60,-5],[63,-5]],
+    africa:[[35,-6],[34,0],[33,10],[30,32],[22,37],[12,44],[2,42],[-5,40],[-12,41],[-18,36],[-26,33],[-34,18],[-34,26],[-30,31],[-25,35],[-15,40],[-5,42],[2,10],[5,4],[5,0],[7,-2],[4,-7],[6,-11],[5,-1],[7,2],[10,0],[11,-15],[15,-17],[20,-17],[25,-14],[30,-10],[35,-6]],
+    asia:[[42,36],[44,40],[47,37],[50,30],[54,20],[55,28],[52,37],[40,44],[35,45],[28,48],[25,57],[22,60],[18,73],[15,80],[22,88],[26,92],[21,96],[16,98],[10,99],[8,100],[5,104],[1,104],[-6,106],[-8,115],[0,110],[5,119],[10,121],[15,121],[22,120],[30,122],[35,129],[38,140],[42,145],[46,143],[50,140],[55,137],[60,140],[65,170],[67,180]],
+    namerica:[[68,-135],[63,-140],[60,-148],[58,-155],[56,-160],[61,-165],[65,-168],[70,-160],[72,-130],[73,-85],[68,-65],[60,-64],[52,-56],[47,-53],[44,-63],[42,-70],[40,-74],[35,-75],[30,-82],[25,-80],[20,-87],[18,-88],[15,-92],[10,-84],[8,-77],[9,-79],[16,-90],[21,-87],[25,-90],[28,-96],[30,-97],[32,-117],[34,-120],[37,-122],[42,-124],[48,-124],[55,-133],[60,-140]],
+    samerica:[[-5,-35],[-2,-45],[2,-50],[5,-52],[8,-60],[12,-72],[10,-76],[5,-77],[0,-80],[-5,-81],[-10,-77],[-15,-75],[-18,-70],[-23,-70],[-33,-71],[-40,-72],[-46,-74],[-50,-73],[-55,-68],[-56,-70],[-55,-65],[-52,-58],[-45,-65],[-42,-64],[-38,-57],[-33,-52],[-28,-49],[-23,-43],[-15,-39],[-10,-37],[-5,-35]],
+    australia:[[-12,131],[-14,127],[-22,114],[-28,114],[-32,116],[-35,118],[-35,137],[-38,145],[-38,148],[-33,152],[-27,153],[-22,150],[-19,146],[-16,146],[-12,142],[-11,136],[-12,131]]
+  };
+  Object.values(continents).forEach(coords=>{const pts=coords.map(([la,lo])=>ll(la,lo,1.008));const g=new THREE.BufferGeometry().setFromPoints(pts);group.add(new THREE.Line(g,coastMat))});
+
+  function ll(lat,lon,r){const p=(90-lat)*Math.PI/180;const t=(lon+180)*Math.PI/180;return new THREE.Vector3(-r*Math.sin(p)*Math.cos(t),r*Math.cos(p),r*Math.sin(p)*Math.sin(t))}
+  const lonPos=ll(51.5,-0.1,1.02),mexPos=ll(19.4,-99.1,1.02);
+
+  const mg=new THREE.SphereGeometry(0.04,16,16);
+  const lonMesh=new THREE.Mesh(mg,new THREE.MeshBasicMaterial({color:0x3d9e7a}));lonMesh.position.copy(lonPos);group.add(lonMesh);
+  const mexMesh=new THREE.Mesh(mg,new THREE.MeshBasicMaterial({color:0xff5a4a}));mexMesh.position.copy(mexPos);group.add(mexMesh);
+
+  const ring1=new THREE.Mesh(new THREE.RingGeometry(0.06,0.08,32),new THREE.MeshBasicMaterial({color:0x3d9e7a,transparent:true,opacity:0.4,side:THREE.DoubleSide}));
+  ring1.position.copy(lonPos);ring1.lookAt(new THREE.Vector3(0,0,0));group.add(ring1);
+  const ring2=new THREE.Mesh(new THREE.RingGeometry(0.06,0.08,32),new THREE.MeshBasicMaterial({color:0xff5a4a,transparent:true,opacity:0.5,side:THREE.DoubleSide}));
+  ring2.position.copy(mexPos);ring2.lookAt(new THREE.Vector3(0,0,0));group.add(ring2);
+  const ring3=new THREE.Mesh(new THREE.RingGeometry(0.10,0.12,32),new THREE.MeshBasicMaterial({color:0xff5a4a,transparent:true,opacity:0.2,side:THREE.DoubleSide}));
+  ring3.position.copy(mexPos);ring3.lookAt(new THREE.Vector3(0,0,0));group.add(ring3);
+
+  const arcPts=[];const seg=80;
+  for(let i=0;i<=seg;i++){const t=i/seg;const p=new THREE.Vector3().lerpVectors(lonPos,mexPos,t);const alt=1.0+0.22*Math.sin(t*Math.PI);p.normalize().multiplyScalar(alt);arcPts.push(p)}
+  const arcCurve=new THREE.CatmullRomCurve3(arcPts);
+  const arcGeo=new THREE.TubeGeometry(arcCurve,80,0.004,8,false);
+  const arcMat=new THREE.MeshBasicMaterial({color:0xff5a4a,transparent:true,opacity:0.5});
+  group.add(new THREE.Mesh(arcGeo,arcMat));
+
+  const dotGeo=new THREE.SphereGeometry(0.02,8,8);
+  const dotMat=new THREE.MeshBasicMaterial({color:0xff8a7a});
+  const travelDot=new THREE.Mesh(dotGeo,dotMat);
+  group.add(travelDot);
+
+  group.rotation.y=-0.5;group.rotation.x=0.12;
+  scene.add(group);
+
+  function project(v){
+    const wv=v.clone();
+    wv.applyMatrix4(group.matrixWorld);
+    const pv=wv.clone().project(cam);
+    const behind=pv.z>1;
+    return{x:(pv.x+1)/2*w,y:-(pv.y-1)/2*h,behind};
+  }
+
+  let t=0;
+  function anim(){
+    requestAnimationFrame(anim);
+    t+=0.004;
+    group.rotation.y=-0.5+Math.sin(t*0.7)*0.12;
+
+    const travelT=(t*0.4)%1;
+    const travelPos=arcCurve.getPoint(travelT);
+    travelDot.position.copy(travelPos);
+    travelDot.material.opacity=0.4+0.6*Math.sin(travelT*Math.PI);
+
+    ring2.scale.setScalar(1+0.2*Math.sin(t*2.5));
+    ring2.material.opacity=0.5-0.2*Math.sin(t*2.5);
+    ring3.scale.setScalar(1+0.3*Math.sin(t*1.8));
+    ring3.material.opacity=0.2-0.1*Math.sin(t*1.8);
+
+    const lp=project(lonPos);
+    const mp=project(mexPos);
+    const clampX=(x)=>Math.max(70,Math.min(w-70,x));
+    const clampY=(y)=>Math.max(55,Math.min(h-10,y));
+    lonLabel.style.transform=`translate(${clampX(lp.x)}px,${clampY(lp.y)-16}px) translate(-50%,-100%)`;
+    lonLabel.style.opacity=lp.behind?'0':'1';
+    mexLabel.style.transform=`translate(${clampX(mp.x)}px,${clampY(mp.y)-16}px) translate(-50%,-100%)`;
+    mexLabel.style.opacity=mp.behind?'0':'1';
+    distLabel.style.opacity=(!lp.behind&&!mp.behind)?'1':'0';
+
+    ren.render(scene,cam);
+  }
+  anim();
+}
+
+
+
+function tThink(){
+  const el=document.createElement('div');el.className='theatre-thinking';
+  el.innerHTML=`<div class="thinking-dots"><span></span><span></span><span></span></div><div class="thinking-label">Processing</div>`;
+  tWorkspace.appendChild(el);setTimeout(()=>{tWorkspace.scrollTop=tWorkspace.scrollHeight},50);
+  return el;
+}
+
+function tApprove(type,card,action){
+  card.querySelectorAll('.theatre-approve').forEach(b=>b.disabled=true);
+  tPaused=false;tPendingApproval=null;
+  const s=SCENARIOS[tCtx];
+  const start=Date.now()-tElapsed*1000;
+  tInterval=setInterval(()=>{tElapsed=Math.floor((Date.now()-start)/1000);tTimerEl.textContent=tFmt(tElapsed)},1000);
+  tSetStatus('','Agent operating');
+  if(action==='cancel'){
+    // alternate path
+    const alt=type==='freeze'?
+      {label:'Transaction authorised',time:'',body:'Transaction whitelisted. Card remains active. Travel flag set for 14 days.',color:2}:
+      {label:'Transfer declined',time:'',body:'Transfer declined. Payroll batch flagged for manual review. Notifying your HR team.',color:2};
+    setTimeout(()=>{const th=tThink();setTimeout(()=>{tWorkspace.removeChild(th);tAddCard(alt,0);setTimeout(()=>tFinish('Action recorded with consent. Audit trail updated.'),1000)},1200)},400);
+    return;
+  }
+  const remaining=s.cards.slice(s.pauseAt+1);
+  remaining.forEach((card,i)=>{
+    const th_t=setTimeout(()=>{const th=tThink();const c_t=setTimeout(()=>{tWorkspace.removeChild(th);tAddCard(card,0)},1200);tTimers.push(c_t)},(i)*1800+400);
+    tTimers.push(th_t);
+  });
+  const fin_t=setTimeout(()=>tFinish(s.banner),(remaining.length)*1800+1600);
+  tTimers.push(fin_t);
+}
+
+function tSlotSelect(slotIdx,slotTime,card){
+  tSelectedSlot=slotTime;tPaused=false;
+  card.querySelectorAll('.theatre-slot').forEach((b,i)=>{b.disabled=true;if(i===parseInt(slotIdx))b.classList.add('selected')});
+  const start=Date.now()-tElapsed*1000;
+  tInterval=setInterval(()=>{tElapsed=Math.floor((Date.now()-start)/1000);tTimerEl.textContent=tFmt(tElapsed)},1000);
+  tSetStatus('','Agent operating');
+  const confirmCard={label:'Confirmed',time:'0:08',body:`${['Mon 27','Tue 28','Thu 30'][parseInt(slotIdx)]}, ${slotTime} with Dr. Reeves confirmed. Calendar updated. Reminder set.`,color:2};
+  const th=tThink();
+  setTimeout(()=>{tWorkspace.removeChild(th);tAddCard(confirmCard,0);setTimeout(()=>tFinish(SCENARIOS[tCtx].banner),1000)},1400);
+}
+
+function tFinish(msg){
+  if(tInterval){clearInterval(tInterval);tInterval=null}
+  tSetStatus('done','Resolved');
+  tBannerText.textContent=msg;
+  tBanner.style.display='flex';
+}
+
+function tRun(ctx){
+  tClear();tCtx=ctx;
+  const s=SCENARIOS[ctx];
+  tAvatar.textContent=s.avatar;
+  tMsg.textContent=s.msg;
+  tSetStatus('','Agent operating');
+  const startTime=Date.now();
+  tInterval=setInterval(()=>{tElapsed=Math.floor((Date.now()-startTime)/1000);tTimerEl.textContent=tFmt(tElapsed)},1000);
+  s.cards.forEach((card,i)=>{
+    if(s.pauseAt>=0&&i>s.pauseAt)return;
+    const delay=(i+1)*1800;
+    const th_t=setTimeout(()=>{if(tPaused)return;const th=tThink();const c_t=setTimeout(()=>{if(tWorkspace.contains(th))tWorkspace.removeChild(th);if(!tPaused||i===s.pauseAt)tAddCard(card,0)},1200);tTimers.push(c_t)},delay-400);
+    tTimers.push(th_t);
+  });
+  if(s.pauseAt<0){
+    const fin_t=setTimeout(()=>tFinish(s.banner),(s.cards.length+1)*1800);
+    tTimers.push(fin_t);
+  }
+}
+
+document.querySelectorAll('.theatre-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.theatre-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');tRun(btn.dataset.ctx);
+  });
+});
+document.getElementById('tReplay').addEventListener('click',()=>tRun(tCtx));
+const theatreObs=new IntersectionObserver(([e])=>{if(e.isIntersecting){tRun('fraud');theatreObs.disconnect()}},{threshold:0.3});
+const theatreEl=document.querySelector('.theatre-wrap');
+if(theatreEl)theatreObs.observe(theatreEl);
+</script>
+</body>
+</html>
